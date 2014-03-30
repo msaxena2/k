@@ -31,6 +31,7 @@ import org.kframework.parser.concrete.disambiguate.PreferAvoidFilter;
 import org.kframework.parser.concrete.disambiguate.PriorityFilter;
 import org.kframework.parser.concrete.disambiguate.SentenceVariablesFilter;
 import org.kframework.parser.concrete.disambiguate.VariableTypeInferenceFilter;
+import org.kframework.parser.kore.KoreParser;
 import org.kframework.parser.utils.ReportErrorsVisitor;
 import org.kframework.parser.utils.Sglr;
 import org.kframework.utils.StringUtil;
@@ -79,6 +80,24 @@ public class ParseRulesFilter extends BasicTransformer {
     public ASTNode transform(StringSentence ss) throws TransformerException {
         if (ss.getType().equals(Constants.RULE) || ss.getType().equals(Constants.CONTEXT)) {
             long startTime = System.currentTimeMillis();
+        	if (ss.containsAttribute("kore") && ! GlobalSettings.parseKore) {
+        		// TODO: call the kore attribute per rule here
+        		ASTNode config=KoreParser.parse(ss.getFilename(), ss.getContent(), this.context);
+                if (ss.getType().equals(Constants.CONTEXT))
+                    config = new org.kframework.kil.Context((Sentence) config);
+                else if (ss.getType().equals(Constants.RULE))
+                    config = new Rule((Sentence) config);
+                else { // should not reach here
+                    config = null;
+                    assert false : "Only context and rules have been implemented.";
+                }
+                Sentence st = (Sentence) config;
+                assert st.getLabel().equals(""); // labels should have been parsed in Basic Parsing
+                st.setLabel(ss.getLabel());
+                //assert st.getAttributes() == null || st.getAttributes().isEmpty(); // attributes should have been parsed in Basic Parsing
+                st.setAttributes(ss.getAttributes());
+                return config;
+        	}
             try {
                 ASTNode config;
 

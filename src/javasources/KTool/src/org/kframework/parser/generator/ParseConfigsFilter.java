@@ -26,6 +26,7 @@ import org.kframework.parser.concrete.disambiguate.PreferAvoidFilter;
 import org.kframework.parser.concrete.disambiguate.PriorityFilter;
 import org.kframework.parser.concrete.disambiguate.SentenceVariablesFilter;
 import org.kframework.parser.concrete.disambiguate.VariableTypeInferenceFilter;
+import org.kframework.parser.kore.KoreParser;
 import org.kframework.parser.utils.ReportErrorsVisitor;
 import org.kframework.parser.utils.Sglr;
 import org.kframework.utils.StringUtil;
@@ -61,6 +62,16 @@ public class ParseConfigsFilter extends BasicTransformer {
 
     public ASTNode transform(StringSentence ss) throws TransformerException {
         if (ss.getType().equals(Constants.CONFIG)) {
+        	//parse .kore file by using kore parser
+            if(ss.containsAttribute("kore") && ! GlobalSettings.parseKore){
+            	Sentence st =KoreParser.parse(ss.getFilename(), ss.getContent(), this.context);
+            	ASTNode config = new Configuration(st);
+                assert st.getLabel().equals(""); // labels should have been parsed in Basic Parsing
+                st.setLabel(ss.getLabel());
+                //assert st.getAttributes() == null || st.getAttributes().isEmpty(); // attributes should have been parsed in Basic Parsing
+                st.setAttributes(ss.getAttributes());
+                return config;
+            }
             try {
                 ASTNode config = null;
                 if (GlobalSettings.fastKast) {

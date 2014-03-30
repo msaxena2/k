@@ -111,7 +111,8 @@ public class GlobalSettings {
 
     //the type of rule indexing rule to use during kompile
     public static String ruleIndex = "table";
-
+    //use for indicating parsing .kore file
+    public static boolean parseKore=false; 
     public static boolean symbolicEquality = false;
     public static boolean SMT = false;
     public static boolean javaBackend = false;
