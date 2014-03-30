@@ -204,7 +204,6 @@ public class KompileFrontEnd {
                     FileUtil.getMainModule(GlobalSettings.mainFile.getName()));
             
             if(cmd.hasOption("tokore")){
-            	System.out.println("here");
             	GlobalSettings.parseKore=true;
                 KoreBackend koreBackend = new KoreBackend(Stopwatch.sw, context);
                 koreBackend.run(DefinitionLoader.loadDefinition(GlobalSettings.mainFile, lang,

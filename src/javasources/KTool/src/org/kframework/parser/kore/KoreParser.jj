@@ -214,7 +214,7 @@ Term parseKApp(Context context):{Term a; Term b; Term c=null;Token theSort;}
 }
 
 Term parseKToken(): {Token n;Token m;Term a;}
-{ "#token" < LPR > n=< SORT_ID > "," m=< SORT_ID > < RPR > {return org.kframework.kil.Token.of(n.image,m.image);}
+{ "#token" < LPR > n=< STRING > "," m=< STRING > < RPR > {return org.kframework.kil.Token.of(n.image,m.image);}
 | "#label" < LPR > a=parseLabel() < RPR > {return a;}
 }
 

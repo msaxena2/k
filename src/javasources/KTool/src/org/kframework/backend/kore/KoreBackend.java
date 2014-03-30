@@ -350,38 +350,25 @@ class KoreFilter extends BasicVisitor {
         public void visit(KList node) {
               visitList(node.getContents(), " , ", ".KList");
         }
-
-          @Override
-        public void visit(BoolBuiltin node) {
-              this.indenter.append(node.value()); // TODO: true() vs #"true"()
-        }
-
-        @Override
-        public void visit(IntBuiltin node) {
-            this.indenter.append(node.value()); // TODO: true() vs #"true"()
-        }
-
-        @Override
-        public void visit(StringBuiltin node) {
-            this.indenter.append(node.value());
-        }
         
         @Override
         public void visit(KApp node) {
-        	if((node.getLabel() instanceof KLabelConstant) || (node.getLabel() instanceof Variable)){
+        	if(node.getLabel() instanceof Token){
+        		node.getLabel().accept(this);
+        	} else if((node.getLabel() instanceof KLabelConstant) || (node.getLabel() instanceof Variable)){
                 node.getLabel().accept(this);
                 this.indenter.append("(");
                 node.getChild().accept(this);
                 this.indenter.append(")");
-      	  }	else if (node.getLabel() instanceof KInjectedLabel){
+            }	else if (node.getLabel() instanceof KInjectedLabel){
       		  ((KInjectedLabel)node.getLabel()).getTerm().accept(this);
-      	  }
-        	else {
+      		} else {
       		this.indenter.append("#apply(");
       		node.getLabel().accept(this);
+      		this.indenter.append(" , ");
       		node.getChild().accept(this);
       		this.indenter.append(")");
-      	  }	  
+      	    }	  
         }
 
         @Override
