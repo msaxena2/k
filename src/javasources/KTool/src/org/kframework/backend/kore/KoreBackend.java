@@ -216,7 +216,7 @@ class KoreFilter extends BasicVisitor {
     
     @Override
     public void visit(Token node) {
-        indenter.append("#token(\"" + node.tokenSort() + "\", \"" + node.value() + "\")");
+        indenter.append("#token(\"" + node.tokenSort() + "\", \"" + node.value().replace("\"", "\\\"") + "\")");
     }
     
     @Override
@@ -316,24 +316,36 @@ class KoreFilter extends BasicVisitor {
         indenter.append("  imports " +node.getName());
         indenter.append('\n');
     }
+    
+    private boolean isKList(ASTNode node){
+    	return ((node instanceof KList)
+        		|| ((node instanceof Variable) && 
+        				((Variable)node).getSort().equals(KSorts.KLIST)));
+    }
+    
+    private boolean isKLabel(ASTNode node){
+    	return ((node instanceof KLabelConstant)
+        		|| ((node instanceof Variable) && 
+        				((Variable)node).getSort().equals(KSorts.KLABEL)));
+    }
   
     private void visitList(List<? extends ASTNode> nodes, String sep, String empty) {
-    	boolean isInKList=false;
     	boolean needPren=false;
-    	if(empty.equals(".KList")){
-    		isInKList=true;
-    	}
-    	
-        if (nodes.size() == 0) { this.indenter.append(empty); }
+        if (nodes.size() == 0) { 
+        	this.indenter.append(empty); 
+        }
         else {
           for (int i = 0; i < nodes.size(); i++) {
-        	if(isInKList && (nodes.get(i) instanceof KList)){
-        		indenter.append(" [ ");
+        	if( isKList(nodes.get(i))){
+        		indenter.append("#klist(");
+        		needPren=true;
+        	} else if(isKLabel(nodes.get(i))){
+        		indenter.append("#label(");
         		needPren=true;
         	}
             nodes.get(i).accept(this);
             if(needPren){
-            	indenter.append(" ] ");
+            	indenter.append(")");
             }
             if (i != (nodes.size() - 1)) { indenter.append(sep); }
             needPren=false;
@@ -366,7 +378,17 @@ class KoreFilter extends BasicVisitor {
       		this.indenter.append("#apply(");
       		node.getLabel().accept(this);
       		this.indenter.append(" , ");
-      		node.getChild().accept(this);
+      		if(isKList(node.getChild())){
+      			this.indenter.append("#klist(");
+      			node.getChild().accept(this);
+      			this.indenter.append(")");
+      		} else if(isKLabel(node.getChild())){
+      			this.indenter.append("#label(");
+      			node.getChild().accept(this);
+      			this.indenter.append(")");
+      		} else {
+          		node.getChild().accept(this);
+      		}
       		this.indenter.append(")");
       	    }	  
         }
@@ -378,7 +400,9 @@ class KoreFilter extends BasicVisitor {
         
         @Override
         public void visit(KInjectedLabel kInjectedLabel) {
-            kInjectedLabel.getTerm().accept(this);
+            this.indenter.append("{|");
+        	kInjectedLabel.getTerm().accept(this);
+            this.indenter.append("::KInjectedLabelTransed|}");
         }
         
         @Override
@@ -521,16 +545,26 @@ class KoreFilter extends BasicVisitor {
         @Override
         public void visit(Rewrite rewrite) {
         	indenter.append("{ ");
-        	if(rewrite.getLeft().getSort().equals(KSorts.KLABEL)){
-        		KApp result = (new KApp(rewrite.getLeft(),KList.EMPTY));
-        		result.accept(this);
+        	if(isKList(rewrite.getLeft())){
+        		indenter.append("#klist(");
+        		rewrite.getLeft().accept(this);
+        		indenter.append(")");
+        	} else if(isKLabel(rewrite.getLeft())){
+        		indenter.append("#label(");
+        		rewrite.getLeft().accept(this);
+        		indenter.append(")");
         	} else {
         		rewrite.getLeft().accept(this);
         	}
             indenter.append(" => ");
-        	if(rewrite.getRight().getSort().equals(KSorts.KLABEL)){
-        		KApp result = (new KApp(rewrite.getRight(),KList.EMPTY));
-        		result.accept(this);
+        	if(isKList(rewrite.getRight())){
+        		indenter.append("#klist(");
+        		rewrite.getRight().accept(this);
+        		indenter.append(")");
+        	} else if(isKLabel(rewrite.getRight())){
+        		indenter.append("#label(");
+        		rewrite.getRight().accept(this);
+        		indenter.append(")");
         	} else {
         		rewrite.getRight().accept(this);
         	}
@@ -653,10 +687,6 @@ class KoreFilter extends BasicVisitor {
         
         @Override
         public void visit(TermCons node){
-        	
-        	KApp result = (new KApp(new KLabelConstant(node.getProduction().getKLabel()),new KList(node.getContents())));
-        	result.setSort(node.getSort());
-        	result.accept(this);
-
+        	(new KApp(new KLabelConstant(node.getProduction().getKLabel()),new KList(node.getContents()))).accept(this);
         }
 }

@@ -205,16 +205,18 @@ Term parsePreKApp(Context context) : {Term left; Term right;Term test;}
 }
 
 
-Term parseKApp(Context context):{Term a; Term b; Term c=null;Token theSort;}
-{ (LOOKAHEAD(2)
-  a=choiceOne() {return a;}
-| a=parseLabel() < LPR > b=parseKList(context) < RPR >
-{return new KApp(a,b);})
+Term parseKApp(Context context):{Term a; Term b=null; Term c=null;Token theSort;}
+{ a=parseLabel() (< LPR > b=parseKList(context) < RPR >)?
+{ if(b==null)
+	return a;
+  else 
+  	return new KApp(a,b);}
 | a=parseKToken() {return a;}
 }
 
 Term parseKToken(): {Token n;Token m;Term a;}
-{ "#token" < LPR > n=< STRING > "," m=< STRING > < RPR > {return org.kframework.kil.Token.of(n.image,m.image);}
+{ "#token" < LPR > n=< STRING > "," m=< STRING > < RPR >
+	{return org.kframework.kil.Token.of(n.image.substring(1,n.image.length()-1),m.image.substring(1,m.image.length()-1));}
 | "#label" < LPR > a=parseLabel() < RPR > {return a;}
 }
 
