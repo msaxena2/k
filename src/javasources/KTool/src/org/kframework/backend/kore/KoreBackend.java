@@ -445,7 +445,7 @@ class KoreFilter extends BasicVisitor {
                 
                 i.accept(this);
             }
-            indenter.append("\nendmodule");
+            indenter.append("\nendmodule\n");
         }
 
         @Override

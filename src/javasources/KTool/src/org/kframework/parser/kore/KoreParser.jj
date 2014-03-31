@@ -197,7 +197,7 @@ Term parseKSeq(Context context) :{ArrayList<Term> temp = new ArrayList<Term>();T
   return new KSequence(temp);}
 }
 
-Term parsePreKApp(Context context) : {Term left; Term right;Term test;}
+Term parsePreKApp(Context context) : {Term left; Term right;}
 { < LCURLY > left=parseCollection(context)< REWRITE > right=parseCollection(context) <RCURLY>
 { return  new Rewrite(left, right, context);}
 | left=parseKApp(context)
@@ -205,11 +205,10 @@ Term parsePreKApp(Context context) : {Term left; Term right;Term test;}
 }
 
 
-Term parseKApp(Context context):{Term a; Term b=null; Term c=null;Token theSort;}
+Term parseKApp(Context context):{Term a; Term b=null;}
 { a=parseLabel() (< LPR > b=parseKList(context) < RPR >)?
 { if(b==null)
 	return a;
-  else 
   	return new KApp(a,b);}
 | a=parseKToken() {return a;}
 }

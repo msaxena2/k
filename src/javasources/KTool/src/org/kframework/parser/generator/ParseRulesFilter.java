@@ -82,7 +82,6 @@ public class ParseRulesFilter extends BasicTransformer {
             long startTime = System.currentTimeMillis();
         	if (ss.containsAttribute("kore") && ! GlobalSettings.parseKore) {
         		// TODO: call the kore attribute per rule here
-        		System.out.println(ss.getContent().toString());
         		ASTNode config=KoreParser.parse(ss.getFilename(), ss.getContent(), this.context);
                 if (ss.getType().equals(Constants.CONTEXT))
                     config = new org.kframework.kil.Context((Sentence) config);
