@@ -214,9 +214,31 @@ class KoreFilter extends BasicVisitor {
         node.getItem().accept(this);
     }
     
+    /*
+     * a function to replace the LabelOf " and " with \" and \"
+     * but not replace \" and \"
+     */
+    private String replaceQuot(String token){
+    	String result="";
+    	for(int i=0;i<token.length();++i){
+    		if(token.charAt(i)=='\"'){
+    			if(i==0){
+    				result+='\\'+token.charAt(i);
+    			} else if(token.charAt(i-1)!='`'){
+    				result+='\\'+token.charAt(i);
+    			} else {
+    				result+=token.charAt(i);
+    			}
+    		} else {
+    			result+=token.charAt(i);
+    		}
+    	}
+    	return result;
+    }
+    
     @Override
     public void visit(Token node) {
-        indenter.append("#token(\"" + node.tokenSort() + "\", \"" + node.value().replace("\"", "\\\"") + "\")");
+        indenter.append("#token(\"" + node.tokenSort() + "\", \"" + replaceQuot(node.value()) + "\")");
     }
     
     @Override
@@ -392,10 +414,32 @@ class KoreFilter extends BasicVisitor {
       		this.indenter.append(")");
       	    }	  
         }
+        
+        /*
+         * a function to replace the LabelOf ( and ) with `( and `)
+         * but not replace `( and `)
+         */
+        private String replaceParens(String label){
+        	String result="";
+        	for(int i=0;i<label.length();++i){
+        		if(label.charAt(i)=='(' || label.charAt(i)==')'){
+        			if(i==0){
+        				result+="`"+label.charAt(i);
+        			} else if(label.charAt(i-1)!='`'){
+        				result+="`"+label.charAt(i);
+        			} else {
+        				result+=label.charAt(i);
+        			}
+        		} else {
+        			result+=label.charAt(i);
+        		}
+        	}
+        	return result;
+        }
 
         @Override
         public void visit(KLabelConstant node) {
-            this.indenter.append(node.getLabel().replaceAll("\\(", "`(").replaceAll("\\)", "`)")); // TODO: escape the label
+            this.indenter.append(replaceParens(node.getLabel())); // TODO: escape the label
         }
         
         @Override
