@@ -14,6 +14,7 @@ public class KSorts {
     public static final String KLABEL = "KLabel";
     public static final String KLIST = "KList";
     public static final String KRESULT = "KResult";
+    public static final String KTOKEN = "KToken";
 
     public static final String CELL_LABEL = "CellLabel";
 

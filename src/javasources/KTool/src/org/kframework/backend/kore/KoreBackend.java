@@ -389,7 +389,12 @@ class KoreFilter extends BasicVisitor {
         public void visit(KApp node) {
         	if(node.getLabel() instanceof Token){
         		node.getLabel().accept(this);
-        	} else if((node.getLabel() instanceof KLabelConstant) || (node.getLabel() instanceof Variable)){
+        	} else if(node.getLabel() instanceof KLabelConstant 
+        					&& ((KLabelConstant)node.getLabel()).getLabel().equals("#label")){
+        		this.indenter.append("#label(");
+        		node.getChild().accept(this);
+        		this.indenter.append(")");
+        	}else if((node.getLabel() instanceof KLabelConstant) || (node.getLabel() instanceof Variable)){
                 node.getLabel().accept(this);
                 this.indenter.append("(");
                 node.getChild().accept(this);

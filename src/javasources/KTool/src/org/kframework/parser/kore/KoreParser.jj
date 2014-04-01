@@ -27,6 +27,7 @@ import org.kframework.kil.Rewrite;
 import org.kframework.kil.Cell;
 import org.kframework.kil.Sentence;
 import org.kframework.kil.Freezer;
+import org.kframework.kil.KSorts;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.kframework.kil.loader.Context;
@@ -210,13 +211,15 @@ Term parseKApp(Context context):{Term a; Term b=null;}
 { if(b==null)
 	return a;
   	return new KApp(a,b);}
-| a=parseKToken() {return a;}
+| a=parseKToken(context) {return a;}
 }
 
-Term parseKToken(): {Token n;Token m;Term a;}
+Term parseKToken(Context context): {Token n;Token m;Term a;}
 { "#token" < LPR > n=< STRING > "," m=< STRING > < RPR >
-	{return org.kframework.kil.Token.of(n.image.substring(1,n.image.length()-1),m.image.substring(1,m.image.length()-1));}
-| "#label" < LPR > a=parseLabel() < RPR > {return a;}
+	{a = org.kframework.kil.Token.of(n.image.substring(1,n.image.length()-1),m.image.substring(1,m.image.length()-1));
+	 a.setSort(KSorts.KTOKEN);
+	 return a;}
+| "#label" < LPR > a=parseLabel() < RPR > {return new KApp(KLabelConstant.of("#label"),a);}
 }
 
 Term parseLabel():{Token n;Token m;Term a;}
