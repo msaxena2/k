@@ -152,6 +152,7 @@ public class Context implements Serializable {
 		subsorts.addRelation(KSorts.KLIST, "KResult");
 		subsorts.addRelation("K", "KResult");
 		subsorts.addRelation("K", KSorts.KITEM);
+        subsorts.addRelation(KSorts.KITEM, KSorts.KTOKEN);
 		subsorts.addRelation("Bag", "BagItem");
 	}
 	
