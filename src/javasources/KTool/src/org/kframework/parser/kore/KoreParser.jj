@@ -227,8 +227,8 @@ Term parseLabel():{Token n;Token m;Term a;}
 | (LOOKAHEAD(2) a = choiceOne() | a = choiceTwo()) {return a;}
 }
 
-Term choiceOne() : {Token n; Token m;}
-{ n = < SORT_ID > ":" m = < SORT_ID > {return (Term)(new Variable(n.image,m.image));}}
+Term choiceOne() : {Token n; Token m;Term a;}
+{ n = < SORT_ID > ":" m = < SORT_ID > {a=new Variable(n.image,m.image);a.setExpectedSort(a.getSort());return a;}}
 
 Term choiceTwo() : {Token n;}
 {n=< SORT_ID > {return (Term)KLabelConstant.of(n.image);} }
