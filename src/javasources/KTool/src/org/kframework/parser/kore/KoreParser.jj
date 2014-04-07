@@ -234,4 +234,3 @@ Term choiceTwo() : {Token n;}
 {n=< SORT_ID > {return (Term)KLabelConstant.of(n.image);} }
 
 
-
