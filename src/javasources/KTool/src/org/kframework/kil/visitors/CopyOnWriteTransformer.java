@@ -819,6 +819,13 @@ public class CopyOnWriteTransformer implements Transformer {
         }
         if (change) {
             node = node.shallowCopy();
+            if(((Term)left).getSort()==null || ((Term)right).getSort()==null){
+            	System.out.println(left.getClass()+","+right.getClass());
+            	System.out.println(node.getLeft().toString()+","+node.getLeft().getClass());
+            	System.out.println(node.getLeft().getSort()+","+((Term)left).getSort());
+            	System.out.println(node.getRight().getSort()+","+((Term)right).getSort());
+            	System.out.println(node.toString()+" in file:"+node.getFilename());
+            }
             node.replaceChildren((Term) left, (Term) right, context);
         }
         return transform((Term) node);
