@@ -51,11 +51,11 @@ public class KoreParser
     } catch (ParseException e) {
       // TODO: report location
       GlobalSettings.kem.register(new KException(
-        ExceptionType.ERROR, KExceptionGroup.PARSER, e.toString(), filename, null));
+        ExceptionType.ERROR, KExceptionGroup.INNER_PARSER, e.toString(), filename, null));
       return null;
     } catch (TokenMgrError e) {
       GlobalSettings.kem.register(new KException(
-        ExceptionType.ERROR, KExceptionGroup.PARSER, e.toString(), filename, null));
+        ExceptionType.ERROR, KExceptionGroup.INNER_PARSER, e.toString(), filename, null));
       return null;
     }
   }

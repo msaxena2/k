@@ -579,11 +579,7 @@ that the user has not declared anything but classes at the top level
 of the program. */
 
   syntax KItem ::= "execute"
-<<<<<<< HEAD
-  rule <k> execute => new theMain(.Exps); </k> <env> .Map </env>  [structural]
-=======
-  rule <k> execute => new Main(.Exps); </k> <env> . </env>  [structural]
->>>>>>> renamed theMain in Main and theObject in Object in kool; no need for Id2String definition for Main or Object
+  rule <k> execute => new Main(.Exps); </k> <env> .Map </env>  [structural]
 
 /*@ The semantics of \texttt{new} (defined below) requires the
 execution of all the class' declarations (and also of its
