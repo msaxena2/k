@@ -62,10 +62,10 @@ public class ParseConfigsFilter extends BasicTransformer {
 
     public ASTNode transform(StringSentence ss) throws TransformerException {
         if (ss.getType().equals(Constants.CONFIG)) {
-        	//parse .kore file by using kore parser
+            //parse .kore file by using kore parser
             if(ss.containsAttribute("kore") && ! GlobalSettings.parseKore){
-            	Sentence st =KoreParser.parse(ss.getFilename(), ss.getContent(), this.context);
-            	ASTNode config = new Configuration(st);
+                Sentence st =KoreParser.parse(ss.getFilename(), ss.getContent(), this.context);
+                ASTNode config = new Configuration(st);
                 assert st.getLabel().equals(""); // labels should have been parsed in Basic Parsing
                 st.setLabel(ss.getLabel());
                 //assert st.getAttributes() == null || st.getAttributes().isEmpty(); // attributes should have been parsed in Basic Parsing

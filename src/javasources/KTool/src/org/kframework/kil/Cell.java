@@ -155,7 +155,7 @@ public class Cell extends Term {
     }
     
     public Cell(String label, Term content,HashMap<String,String> attributes,String ellipses) {
-    	super("BagItem");
+        super("BagItem");
         this.label = label;
         this.endLabel = label;
         this.cellAttributes = attributes;

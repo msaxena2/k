@@ -80,9 +80,9 @@ public class ParseRulesFilter extends BasicTransformer {
     public ASTNode transform(StringSentence ss) throws TransformerException {
         if (ss.getType().equals(Constants.RULE) || ss.getType().equals(Constants.CONTEXT)) {
             long startTime = System.currentTimeMillis();
-        	if (ss.containsAttribute("kore") && ! GlobalSettings.parseKore) {
-        		// TODO: call the kore attribute per rule here
-        		ASTNode config=KoreParser.parse(ss.getFilename(), ss.getContent(), this.context);
+            if (ss.containsAttribute("kore") && ! GlobalSettings.parseKore) {
+                // TODO: call the kore attribute per rule here
+                ASTNode config=KoreParser.parse(ss.getFilename(), ss.getContent(), this.context);
                 if (ss.getType().equals(Constants.CONTEXT))
                     config = new org.kframework.kil.Context((Sentence) config);
                 else if (ss.getType().equals(Constants.RULE))
@@ -97,7 +97,7 @@ public class ParseRulesFilter extends BasicTransformer {
                 //assert st.getAttributes() == null || st.getAttributes().isEmpty(); // attributes should have been parsed in Basic Parsing
                 st.setAttributes(ss.getAttributes());
                 return config;
-        	}
+            }
             try {
                 ASTNode config;
 

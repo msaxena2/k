@@ -90,9 +90,9 @@ public class FlattenTerms extends CopyOnWriteTransformer {
          * a function to check whether or not a child of KList is KList
          */
         private boolean isKList(ASTNode node){
-        	return ((node instanceof KList)
-            		|| ((node instanceof Variable) && 
-            				((Variable)node).getSort().equals(KSorts.KLIST)));
+            return ((node instanceof KList)
+                    || ((node instanceof Variable) && 
+                            ((Variable)node).getSort().equals(KSorts.KLIST)));
         }
 
         @Override
@@ -106,11 +106,11 @@ public class FlattenTerms extends CopyOnWriteTransformer {
             Production ppp = context.conses.get(tc.getCons());
             KList lok = new KList(l, f);
             for (Term t : tc.getContents()) {
-            	if(isKList(t)){
-            		lok.getContents().add(new KApp(l,f,KLabelConstant.of("#klist", context),(Term) t.accept(this)));
-            	} else {
-            		lok.getContents().add((Term) t.accept(this));
-            	}
+                if(isKList(t)){
+                    lok.getContents().add(new KApp(l,f,KLabelConstant.of("#klist", context),(Term) t.accept(this)));
+                } else {
+                    lok.getContents().add((Term) t.accept(this));
+                }
             }
             return new KApp(l, f, KLabelConstant.of(ppp.getKLabel(), context), lok);
         }
