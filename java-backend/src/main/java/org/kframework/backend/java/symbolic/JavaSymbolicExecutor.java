@@ -7,13 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.kframework.backend.java.kil.ConstrainedTerm;
-import org.kframework.backend.java.kil.Definition;
-import org.kframework.backend.java.kil.GlobalContext;
-import org.kframework.backend.java.kil.Rule;
-import org.kframework.backend.java.kil.Term;
-import org.kframework.backend.java.kil.TermContext;
-import org.kframework.backend.java.kil.Variable;
+import org.kframework.backend.java.kil.*;
 import org.kframework.backend.unparser.OutputModes;
 import org.kframework.backend.unparser.UnparserFilter;
 import org.kframework.compile.utils.RuleCompilerSteps;
@@ -176,7 +170,7 @@ public class JavaSymbolicExecutor implements Executor {
         return symbolicRewriter.get();
     }
 
-    private KRunResult<KRunDebuggerResult> debugKILStep(org.kframework.kil.Term originalState) throws KRunExecutionException {
+    private ConstrainedDebugResult javaKILDebugStep(org.kframework.kil.Term originalState) throws KRunExecutionException {
         Term term = kilTransformer.transformAndEval(originalState);
         TermContext termContext = TermContext.of(globalContext);
         if (javaOptions.patternMatching) {
@@ -192,6 +186,7 @@ public class JavaSymbolicExecutor implements Executor {
 
     @Override
     public KRunResult<KRunDebuggerResult> debugStep(org.kframework.kil.Term originalState) throws KRunExecutionException {
+        ConstrainedDebugResult debugResult = javaKILDebugStep(originalState);
         return null;
     }
 }

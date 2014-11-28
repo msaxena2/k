@@ -12,15 +12,7 @@ import org.kframework.backend.java.builtins.BoolToken;
 import org.kframework.backend.java.builtins.FreshOperations;
 import org.kframework.backend.java.builtins.MetaK;
 import org.kframework.backend.java.indexing.RuleIndex;
-import org.kframework.backend.java.kil.Cell;
-import org.kframework.backend.java.kil.CellLabel;
-import org.kframework.backend.java.kil.ConstrainedTerm;
-import org.kframework.backend.java.kil.Definition;
-import org.kframework.backend.java.kil.KSequence;
-import org.kframework.backend.java.kil.Rule;
-import org.kframework.backend.java.kil.Term;
-import org.kframework.backend.java.kil.TermContext;
-import org.kframework.backend.java.kil.Variable;
+import org.kframework.backend.java.kil.*;
 import org.kframework.backend.java.strategies.TransitionCompositeStrategy;
 import org.kframework.kompile.KompileOptions;
 import org.kframework.krun.api.KRunDebuggerResult;
@@ -495,9 +487,16 @@ public class SymbolicRewriter {
     }
 
     /**
-     *
+     *  Returns a Debug Step, in internal Java KIL representation
      */
-    public KRunResult<KRunDebuggerResult> debugStep(ConstrainedTerm originalTerm) {
-        return null;
+    public ConstrainedDebugResult debugStep(ConstrainedTerm originalTerm) {
+        computeRewriteStep(originalTerm, 1);
+        ConstrainedTerm steppedState = getTransition(0);
+        Rule rule = appliedRules.get(0);
+        if(steppedState == null)
+            //final state has been reached, hence null returned;
+            return null;
+        Map<Variable, Term> substitutionMap = getSubstitutionMap(steppedState, rule);
+        return new ConstrainedDebugResult(steppedState, rule, substitutionMap);
     }
 }
