@@ -21,10 +21,16 @@ import org.kframework.kil.loader.Context;
 import org.kframework.krun.ColorSetting;
 import org.kframework.krun.KRunExecutionException;
 import org.kframework.krun.SubstitutionFilter;
-import org.kframework.krun.api.*;
+import org.kframework.krun.api.KRunDebuggerResult;
+import org.kframework.krun.api.KRunResult;
+import org.kframework.krun.api.KRunState;
+import org.kframework.krun.api.SearchResult;
+import org.kframework.krun.api.SearchResults;
+import org.kframework.krun.api.SearchType;
 import org.kframework.krun.tools.Executor;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import org.kframework.utils.errorsystem.KExceptionManager;
 
 public class JavaSymbolicExecutor implements Executor {
 
@@ -168,6 +174,20 @@ public class JavaSymbolicExecutor implements Executor {
 
     public SymbolicRewriter getSymbolicRewriter() {
         return symbolicRewriter.get();
+    }
+
+    private KRunResult<KRunDebuggerResult> debugKILStep(org.kframework.kil.Term originalState) throws KRunExecutionException {
+        Term term = kilTransformer.transformAndEval(originalState);
+        TermContext termContext = TermContext.of(globalContext);
+        if (javaOptions.patternMatching) {
+            // not yet implemented
+            throw KExceptionManager.criticalError("Debugger with Pattern Matcher not yet implemented");
+        } else {
+            SymbolicConstraint constraint = new SymbolicConstraint(termContext);
+            ConstrainedTerm constrainedTerm = new ConstrainedTerm(term, constraint);
+            return getSymbolicRewriter().debugStep(constrainedTerm);
+        }
+
     }
 
     @Override
