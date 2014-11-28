@@ -23,6 +23,8 @@ import org.kframework.backend.java.kil.TermContext;
 import org.kframework.backend.java.kil.Variable;
 import org.kframework.backend.java.strategies.TransitionCompositeStrategy;
 import org.kframework.kompile.KompileOptions;
+import org.kframework.krun.api.KRunDebuggerResult;
+import org.kframework.krun.api.KRunResult;
 import org.kframework.krun.api.SearchType;
 import org.kframework.utils.errorsystem.KExceptionManager.KEMException;
 
@@ -492,4 +494,10 @@ public class SymbolicRewriter {
         return proofResults;
     }
 
+    /**
+     *
+     */
+    public KRunResult<KRunDebuggerResult> debugStep(ConstrainedTerm originalTerm) {
+        return null;
+    }
 }
