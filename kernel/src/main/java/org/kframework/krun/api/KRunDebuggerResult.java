@@ -7,28 +7,17 @@ package org.kframework.krun.api;
  */
 public class KRunDebuggerResult {
 
-    private KRunState originalState;
     private KRunState steppedState;
     private Transition rule;
 
     public KRunDebuggerResult() {
-        originalState = null;
         steppedState = null;
         rule = null;
     }
 
     public KRunDebuggerResult(KRunState originalState, KRunState steppedState, Transition rule) {
-        this.originalState = originalState;
         this.steppedState = steppedState;
         this.rule = rule;
-    }
-
-    public KRunState getOriginalState() {
-        return originalState;
-    }
-
-    public void setOriginalState(KRunState originalState) {
-        this.originalState = originalState;
     }
 
     public KRunState getSteppedState() {
