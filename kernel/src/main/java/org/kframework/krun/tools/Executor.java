@@ -13,13 +13,10 @@ import org.kframework.kil.Sort;
 import org.kframework.kil.Term;
 import org.kframework.kil.Variable;
 import org.kframework.kil.loader.Context;
+import org.kframework.krun.api.*;
 import org.kframework.utils.errorsystem.ParseFailedException;
 import org.kframework.krun.KRunExecutionException;
 import org.kframework.krun.KRunOptions;
-import org.kframework.krun.api.KRunResult;
-import org.kframework.krun.api.KRunState;
-import org.kframework.krun.api.SearchResults;
-import org.kframework.krun.api.SearchType;
 import org.kframework.parser.TermLoader;
 import org.kframework.transformation.Transformation;
 import org.kframework.utils.Stopwatch;
@@ -74,6 +71,17 @@ public interface Executor {
     rewrites are possible)
     */
     public abstract KRunResult<KRunState> step(Term cfg, int steps) throws KRunExecutionException;
+
+    /**
+    Execute a term in debugger mode. Execution only happens for a single step.
+    @param originalState The initial configuration to step from
+    @exception KRunExecutionException Thrown if the backend fails to successfully execute the
+    term
+    @return An object containing information about the step operation, mainly the stepped state,
+    the transition (rule applied) and the substitution
+    */
+    public abstract KRunResult<KRunDebuggerResult> debugStep(Term originalState) throws KRunExecutionException;
+
 
     public static class Tool implements Transformation<Void, KRunResult<?>> {
 
