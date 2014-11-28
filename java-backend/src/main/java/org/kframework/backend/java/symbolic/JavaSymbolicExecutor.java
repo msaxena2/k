@@ -21,11 +21,7 @@ import org.kframework.kil.loader.Context;
 import org.kframework.krun.ColorSetting;
 import org.kframework.krun.KRunExecutionException;
 import org.kframework.krun.SubstitutionFilter;
-import org.kframework.krun.api.KRunResult;
-import org.kframework.krun.api.KRunState;
-import org.kframework.krun.api.SearchResult;
-import org.kframework.krun.api.SearchResults;
-import org.kframework.krun.api.SearchType;
+import org.kframework.krun.api.*;
 import org.kframework.krun.tools.Executor;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -172,5 +168,10 @@ public class JavaSymbolicExecutor implements Executor {
 
     public SymbolicRewriter getSymbolicRewriter() {
         return symbolicRewriter.get();
+    }
+
+    @Override
+    public KRunResult<KRunDebuggerResult> debugStep(org.kframework.kil.Term originalState) throws KRunExecutionException {
+        return null;
     }
 }
