@@ -8,19 +8,19 @@ import java.util.List;
 import java.util.Map;
 
 import org.kframework.backend.java.kil.*;
+import org.kframework.backend.java.kil.Definition;
+import org.kframework.backend.java.kil.Rule;
+import org.kframework.backend.java.kil.Term;
+import org.kframework.backend.java.kil.Variable;
 import org.kframework.backend.unparser.OutputModes;
 import org.kframework.backend.unparser.UnparserFilter;
 import org.kframework.compile.utils.RuleCompilerSteps;
+import org.kframework.kil.*;
 import org.kframework.kil.loader.Context;
 import org.kframework.krun.ColorSetting;
 import org.kframework.krun.KRunExecutionException;
 import org.kframework.krun.SubstitutionFilter;
-import org.kframework.krun.api.KRunDebuggerResult;
-import org.kframework.krun.api.KRunResult;
-import org.kframework.krun.api.KRunState;
-import org.kframework.krun.api.SearchResult;
-import org.kframework.krun.api.SearchResults;
-import org.kframework.krun.api.SearchType;
+import org.kframework.krun.api.*;
 import org.kframework.krun.tools.Executor;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -184,9 +184,38 @@ public class JavaSymbolicExecutor implements Executor {
 
     }
 
+
+    private KRunDebuggerResult transformDebugResult(ConstrainedDebugResult debugResult) {
+        org.kframework.kil.Term kilTerm = (org.kframework.kil.Term) debugResult.getSteppedState().term().accept(
+                new BackendJavaKILtoKILTransformer(context));
+
+        KRunState kilState = new KRunState(kilTerm, counter);
+
+        org.kframework.kil.Rule kilRule = (org.kframework.kil.Rule) debugResult.getRule().accept(
+                new BackendJavaKILtoKILTransformer(context));
+
+        Transition kilTransition = Transition.rule(kilRule);
+
+        Map<org.kframework.kil.Variable, org.kframework.kil.Term> kilSubstMap = new HashMap<>();
+        for(Variable variable : debugResult.getSubstitutionMap().keySet()) {
+            org.kframework.kil.Variable kilVariable = (org.kframework.kil.Variable) variable.accept(
+                    new BackendJavaKILtoKILTransformer(context));
+            org.kframework.kil.Term kilMapTerm = (org.kframework.kil.Term) debugResult.getSubstitutionMap().get(variable)
+                    .accept(new BackendJavaKILtoKILTransformer(context));
+            kilSubstMap.put(kilVariable, kilMapTerm);
+        }
+        return new KRunDebuggerResult(kilState, kilTransition, kilSubstMap);
+    }
+
     @Override
     public KRunResult<KRunDebuggerResult> debugStep(org.kframework.kil.Term originalState) throws KRunExecutionException {
         ConstrainedDebugResult debugResult = javaKILDebugStep(originalState);
-        return null;
+        org.kframework.kil.Term kilTerm = (org.kframework.kil.Term) debugResult.getSteppedState().term().accept(
+                new BackendJavaKILtoKILTransformer(context));
+        org.kframework.kil.Rule kilRule = (org.kframework.kil.Rule) debugResult.getRule().accept(
+                new BackendJavaKILtoKILTransformer(context));
+        Transition transition = Transition.rule(kilRule);
+        KRunDebuggerResult kilResult = new KRunDebuggerResult(new KRunState(kilTerm, counter), transition);
+        return new KRunResult<KRunDebuggerResult>(kilResult);
     }
 }
