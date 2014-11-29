@@ -15,7 +15,7 @@ public class KRunDebuggerResult {
         rule = null;
     }
 
-    public KRunDebuggerResult(KRunState originalState, KRunState steppedState, Transition rule) {
+    public KRunDebuggerResult(KRunState steppedState, Transition rule) {
         this.steppedState = steppedState;
         this.rule = rule;
     }
