@@ -6,7 +6,7 @@ import java.util.Map;
 
 /**
  *  Debugger Result object to be used in the symbolic rewriter.
- *
+ *  Internal Representation to be used in the java rewrite engine.
  */
 public class ConstrainedDebugResult {
 
@@ -34,5 +34,13 @@ public class ConstrainedDebugResult {
 
     public void setRule(Rule rule) {
         this.rule = rule;
+    }
+
+    public Map<Variable, Term> getSubstitutionMap() {
+        return substitutionMap;
+    }
+
+    public void setSubstitutionMap(Map<Variable, Term> substitutionMap) {
+        this.substitutionMap = substitutionMap;
     }
 }

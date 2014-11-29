@@ -15,7 +15,6 @@ import org.kframework.backend.java.kil.Variable;
 import org.kframework.backend.unparser.OutputModes;
 import org.kframework.backend.unparser.UnparserFilter;
 import org.kframework.compile.utils.RuleCompilerSteps;
-import org.kframework.kil.*;
 import org.kframework.kil.loader.Context;
 import org.kframework.krun.ColorSetting;
 import org.kframework.krun.KRunExecutionException;
@@ -200,8 +199,8 @@ public class JavaSymbolicExecutor implements Executor {
         for(Variable variable : debugResult.getSubstitutionMap().keySet()) {
             org.kframework.kil.Variable kilVariable = (org.kframework.kil.Variable) variable.accept(
                     new BackendJavaKILtoKILTransformer(context));
-            org.kframework.kil.Term kilMapTerm = (org.kframework.kil.Term) debugResult.getSubstitutionMap().get(variable)
-                    .accept(new BackendJavaKILtoKILTransformer(context));
+            org.kframework.kil.Term kilMapTerm = (org.kframework.kil.Term) debugResult.getSubstitutionMap()
+                    .get(variable).accept(new BackendJavaKILtoKILTransformer(context));
             kilSubstMap.put(kilVariable, kilMapTerm);
         }
         return new KRunDebuggerResult(kilState, kilTransition, kilSubstMap);
@@ -210,12 +209,7 @@ public class JavaSymbolicExecutor implements Executor {
     @Override
     public KRunResult<KRunDebuggerResult> debugStep(org.kframework.kil.Term originalState) throws KRunExecutionException {
         ConstrainedDebugResult debugResult = javaKILDebugStep(originalState);
-        org.kframework.kil.Term kilTerm = (org.kframework.kil.Term) debugResult.getSteppedState().term().accept(
-                new BackendJavaKILtoKILTransformer(context));
-        org.kframework.kil.Rule kilRule = (org.kframework.kil.Rule) debugResult.getRule().accept(
-                new BackendJavaKILtoKILTransformer(context));
-        Transition transition = Transition.rule(kilRule);
-        KRunDebuggerResult kilResult = new KRunDebuggerResult(new KRunState(kilTerm, counter), transition);
+        KRunDebuggerResult kilResult = transformDebugResult(debugResult);
         return new KRunResult<KRunDebuggerResult>(kilResult);
     }
 }
