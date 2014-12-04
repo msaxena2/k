@@ -22,6 +22,7 @@ import org.kframework.kil.loader.Context;
 import org.kframework.kompile.KompileOptions;
 import org.kframework.krun.KRunDebuggerOptions;
 import org.kframework.krun.KRunExecutionException;
+import org.kframework.krun.api.KRunDebugGraph;
 import org.kframework.krun.api.KRunGraph;
 import org.kframework.krun.api.KRunState;
 import org.kframework.krun.api.SearchResults;
@@ -46,12 +47,12 @@ public interface Debugger {
     Get the current graph of the explored state space in the transition system.
     @return A graph whose nodes and edges describe the explored state of the program.
     */
-    public abstract KRunGraph getGraph();
+    public abstract KRunDebugGraph getGraph();
 
     /**
      * Reset the debugger's configuration to the graph specified by the parameter
      */
-    public abstract void setGraph(KRunGraph graph);
+    public abstract void setGraph(KRunDebugGraph graph);
 
     /**
     Get the state number of the currently selected state.
