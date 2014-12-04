@@ -28,7 +28,6 @@ import org.kframework.krun.api.KRunState;
 import org.kframework.krun.api.SearchResult;
 import org.kframework.krun.api.SearchResults;
 import org.kframework.krun.api.SearchType;
-
 import org.kframework.krun.api.Transition;
 import org.kframework.krun.tools.Executor;
 import com.google.inject.Inject;
