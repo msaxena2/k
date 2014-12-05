@@ -196,12 +196,12 @@ public class JavaSymbolicExecutor implements Executor {
     private KRunDebuggerResult transformDebugResult(ConstrainedDebugResult debugResult) {
         org.kframework.kil.Term kilTerm = (org.kframework.kil.Term) debugResult.getSteppedState().term().accept(
                 new BackendJavaKILtoKILTransformer(context));
-
+        System.out.println("term transform successful");
         KRunState kilState = new KRunState(kilTerm, counter);
 
         org.kframework.kil.Rule kilRule = (org.kframework.kil.Rule) debugResult.getRule().accept(
                 new BackendJavaKILtoKILTransformer(context));
-
+        System.out.println("rule transfrom successful");
         Transition kilTransition = Transition.rule(kilRule);
 
         Map<org.kframework.kil.Variable, org.kframework.kil.Term> kilSubstMap = new HashMap<>();

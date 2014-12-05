@@ -259,7 +259,7 @@ public class ExecutorDebugger implements Debugger {
         result = (Term) transformer.visitNode(configuration);
         if (!transformer.getSucceeded()) {
             throw new IllegalStateException("Cannot perform command: Configuration does not " +
-                    "have an stdin buffer");
+                "have an stdin buffer");
         }
         KRunState newState = new KRunState(result, counter);
         Entry<Integer, KRunState> prevValue = containsValue(newState);
@@ -268,7 +268,7 @@ public class ExecutorDebugger implements Debugger {
             Transition edge = graph.findEdge(getState(currentState), canonicalNewState);
             if (edge == null) {
                 graph.addEdge(Transition.stdin(s),
-                        getState(currentState), canonicalNewState);
+                    getState(currentState), canonicalNewState);
             }
             currentState = canonicalNewState.getStateId();
             return;
