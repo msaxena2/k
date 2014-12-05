@@ -10,6 +10,7 @@ import org.kframework.backend.java.compile.ComputeCellsOfInterest;
 import org.kframework.backend.java.compile.DataStructureToLookupUpdate;
 import org.kframework.backend.java.compile.GenerateKRewriteMachineInstructions;
 import org.kframework.backend.java.compile.JavaBackendCell2DataStructure;
+import org.kframework.backend.java.compile.KORECompilationSteps;
 import org.kframework.backend.java.indexing.RuleIndex;
 import org.kframework.compile.FlattenModules;
 import org.kframework.compile.ResolveConfigurationAbstraction;
@@ -93,6 +94,8 @@ public class JavaSymbolicBackend extends BasicBackend {
         CompilerSteps<Definition> steps = new CompilerSteps<Definition>(context);
         steps.add(new FirstStep(this, context));
 
+        steps.add(new KORECompilationSteps(context));
+
         steps.add(new CheckVisitorStep<Definition>(new CheckConfigurationCells(context), context));
         steps.add(new RemoveBrackets(context));
         // SetVariablesInferredSort must be performed before AddEmptyLists
@@ -111,13 +114,14 @@ public class JavaSymbolicBackend extends BasicBackend {
         steps.add(new StrictnessToContexts(context));
         steps.add(new FreezeUserFreezers(context));
         steps.add(new ContextsToHeating(context));
-        //steps.add(new AddSupercoolDefinition(context));
+        steps.add(new AddSupercoolDefinition(context));
         steps.add(new AddHeatingConditions(context));
         //steps.add(new AddSuperheatRules(context));
         steps.add(new DesugarStreams(context));
         steps.add(new ResolveFunctions(context));
         steps.add(new AddKCell(context));
         steps.add(new AddStreamCells(context));
+        steps.add(new ResolveHybrid(context));
         //steps.add(new AddSymbolicK(context));
         //steps.add(new AddSemanticEquality(context));
         // steps.add(new ResolveFresh());
@@ -143,7 +147,6 @@ public class JavaSymbolicBackend extends BasicBackend {
         steps.add(new InitializeConfigurationStructure(context));
         //steps.add(new AddKStringConversion(context));
         //steps.add(new AddKLabelConstant(context));
-        steps.add(new ResolveHybrid(context));
         steps.add(new ResolveConfigurationAbstraction(context, kem));
         steps.add(new ResolveOpenCells(context));
         steps.add(new ResolveRewrite(context));
@@ -153,7 +156,7 @@ public class JavaSymbolicBackend extends BasicBackend {
         steps.add(new JavaBackendCell2DataStructure(context));
         steps.add(new DataStructureToLookupUpdate(context));
 
-        //steps.add(new ResolveSupercool(context));
+        steps.add(new ResolveSupercool(context));
         steps.add(new AddStrictStar(context));
         steps.add(new AddDefaultComputational(context));
         steps.add(new AddOptionalTags(context));

@@ -3,7 +3,7 @@ require "builtins/bool.k"
 require "builtins/k-equal.k"
 require "builtins/symbolic-k.k"
 module UNIFICATION
-  imports SYMBOLIC-K
+  imports VARIABLE
   imports BOOL-HOOKS
   imports K-EQUAL-HOOKS
 
@@ -203,7 +203,7 @@ constraint.
 
 
 // alpha conversion moved here by grigore
- syntax K ::= renameVariables(K)  [function, hook(MetaK:renameVariables)]
+ syntax K ::= renameVariables(K)  [function, hook(MetaK:renameVariables), impure]
 //            | applyAlpha(K)
 
 // rule renameVariables(K) => getAlpha(K) ~> applyAlpha(K)
