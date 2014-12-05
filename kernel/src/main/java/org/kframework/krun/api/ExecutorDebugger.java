@@ -276,7 +276,7 @@ public class ExecutorDebugger implements Debugger {
         putState(newState);
         graph.addVertex(newState);
         graph.addEdge(Transition.stdin(s),
-                getState(currentState), newState);
+            getState(currentState), newState);
         currentState = newState.getStateId();
     }
 
@@ -299,7 +299,7 @@ public class ExecutorDebugger implements Debugger {
         @Override
         public ASTNode visit(Cell cell, Void _void)  {
             if ("stdin".equals(context.cells.get(cell.getLabel())
-                    .getCellAttributes().get("stream"))) {
+                .getCellAttributes().get("stream"))) {
                 inStdin = true;
                 ASTNode result = super.visit(cell, _void);
                 inStdin = false;
