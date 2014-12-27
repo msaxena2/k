@@ -2,7 +2,7 @@
 
 package org.kframework.krun.api;
 
-import org.kframework.kil.Context;
+import org.kframework.kil.loader.Context;
 import org.kframework.kil.Term;
 
 /**
@@ -11,7 +11,7 @@ import org.kframework.kil.Term;
  */
 public abstract class KilContainer {
 
-    private Term kilTerm;
+    protected Term kilTerm;
 
     private TermType type;
 
