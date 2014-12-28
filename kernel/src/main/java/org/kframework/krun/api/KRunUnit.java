@@ -2,6 +2,9 @@
 
 package org.kframework.krun.api;
 
+import org.kframework.kil.Term;
+import org.kframework.kil.loader.Context;
+
 /**
  * A Unit of KRun's computation. It can represent a state, transition e.t.c.
  * Then Unit contains the container, which lazily converts a backend term to a generic term.
@@ -22,5 +25,9 @@ public abstract class KRunUnit {
 
     public void setTermContainer(KilContainer termContainer) {
         this.termContainer = termContainer;
+    }
+
+    public Term getKilTerm(Context context) {
+        return termContainer.getKilTerm(context);
     }
 }
