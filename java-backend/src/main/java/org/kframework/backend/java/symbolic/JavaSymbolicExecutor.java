@@ -19,6 +19,7 @@ import org.kframework.kil.loader.Context;
 import org.kframework.krun.KRunExecutionException;
 import org.kframework.krun.SubstitutionFilter;
 import org.kframework.krun.api.KRunState;
+import org.kframework.krun.api.RewriteRelation;
 import org.kframework.krun.api.SearchResult;
 import org.kframework.krun.api.SearchResults;
 import org.kframework.krun.api.SearchType;
@@ -166,4 +167,25 @@ public class JavaSymbolicExecutor implements Executor {
     private PatternMatchRewriter getPatternMatchRewriter() {
         return patternMatchRewriter.get();
     }
+
+    private RewriteRelation graphStep(org.kframework.kil.Term cfg, int steps, boolean computeGraph)
+            throws KRunExecutionException {
+        Term term = kilTransformer.transformAndEval(cfg);
+        TermContext termContext = TermContext.of(globalContext);
+
+        if(javaOptions.patternMatching) {
+            if(computeGraph) {
+                throw new KRunExecutionException("Sorry! Compute Graph not yet implemented with pattern matching.");
+            }
+            else {
+                //implement this
+                return null;
+
+            }
+        }
+        
+
+
+    }
+
 }
