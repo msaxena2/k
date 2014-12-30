@@ -15,6 +15,7 @@ import org.kframework.backend.java.indexing.RuleIndex;
 import org.kframework.backend.java.kil.CellCollection;
 import org.kframework.backend.java.kil.CellLabel;
 import org.kframework.backend.java.kil.ConstrainedExecutionGraph;
+import org.kframework.backend.java.kil.ConstrainedRewriteRelation;
 import org.kframework.backend.java.kil.ConstrainedTerm;
 import org.kframework.backend.java.kil.Definition;
 import org.kframework.backend.java.kil.JavaTransition;
@@ -531,9 +532,9 @@ public class SymbolicRewriter {
         return proofResults;
     }
 
-    public RewriteRelation traceRewrite(ConstrainedTerm constrainedTerm, int bound, boolean computeGraph) {
+    public ConstrainedRewriteRelation traceRewrite(ConstrainedTerm constrainedTerm, int bound, boolean computeGraph) {
         stopwatch.start();
-        RewriteRelation returnRelation = new RewriteRelation();
+        ConstrainedRewriteRelation returnRelation = new ConstrainedRewriteRelation();
         ConstrainedExecutionGraph executionGraph = null;
         if(computeGraph) {
             executionGraph = new ConstrainedExecutionGraph();
@@ -545,22 +546,21 @@ public class SymbolicRewriter {
             ConstrainedTerm result = getTransition(0);
             if (result != null) {
                 if(computeGraph) {
-                    //add original term
+                    /* add original term */
                     executionGraph.addVertex(constrainedTerm);
-                    //add new term
+                    /* add new term */
                     executionGraph.addVertex(result);
-                    //add egde between the two terms
+                    /* add Transition between the two terms */
                     executionGraph.addEdge(new JavaTransition(getSubstitution(0), getRule(0)), constrainedTerm, result);
                 }
-
-
+                constrainedTerm = result;
 
             } else {
-                break;
+                returnRelation.setFinalTerm(result);
+                returnRelation.setConstrainedExecutionGraph(executionGraph);
             }
         }
-
-
+        return returnRelation;
 
     }
 
