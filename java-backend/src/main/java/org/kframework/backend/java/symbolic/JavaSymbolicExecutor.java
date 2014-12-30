@@ -15,6 +15,7 @@ import org.kframework.backend.java.kil.Term;
 import org.kframework.backend.java.kil.TermContext;
 import org.kframework.backend.java.kil.Variable;
 import org.kframework.compile.utils.RuleCompilerSteps;
+import org.kframework.kil.Rewrite;
 import org.kframework.kil.loader.Context;
 import org.kframework.krun.KRunExecutionException;
 import org.kframework.krun.SubstitutionFilter;
@@ -183,8 +184,13 @@ public class JavaSymbolicExecutor implements Executor {
 
             }
         }
-        
+        else {
+            SymbolicConstraint constraint = new SymbolicConstraint(termContext);
+            ConstrainedTerm constrainedTerm = new ConstrainedTerm(term, constraint);
+            getSymbolicRewriter().traceRewrite(constrainedTerm, steps, computeGraph);
+        }
 
+        return null;
 
     }
 

@@ -25,7 +25,7 @@ public class RewriteRelation {
         return executionGraph;
     }
 
-    public void setExecutionGraph(Optional<KRunExecutionGraph> executionGraph) {
-        this.executionGraph = executionGraph;
+    public void setExecutionGraph(KRunExecutionGraph executionGraph) {
+        this.executionGraph = Optional.of(executionGraph);
     }
 }
