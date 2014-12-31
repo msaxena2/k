@@ -15,8 +15,13 @@ public class JavaKilContainer extends KilContainer {
 
     private org.kframework.backend.java.kil.Term javaTerm;
 
+    public JavaKilContainer(Context context, org.kframework.backend.java.kil.Term javaTerm) {
+        super(context);
+        this.javaTerm = javaTerm;
+    }
+
     @Override
-    public Term getKilTerm(Context context) {
+    public Term getKilTerm() {
         if(!(kilTerm == null)){
             return kilTerm;
         }

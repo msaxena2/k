@@ -2,8 +2,8 @@
 
 package org.kframework.krun.api;
 
-import org.kframework.kil.loader.Context;
 import org.kframework.kil.Term;
+import org.kframework.kil.loader.Context;
 
 /**
  * Abstract class, to be extended by every container specific to the backend.
@@ -13,7 +13,11 @@ public abstract class KilContainer {
 
     protected Term kilTerm;
 
-    private TermType type;
+    protected Context context;
+
+    public KilContainer(Context context) {
+        this.context = context;
+    }
 
     /**
      * To be implemented in the extending class.
@@ -21,13 +25,5 @@ public abstract class KilContainer {
      * or calculate it using the context and the backend term, and then return it.
      */
 
-    public abstract Term getKilTerm(Context context);
-
-    public TermType getType() {
-        return type;
-    }
-
-    public void setType(TermType type) {
-        this.type = type;
-    }
+    public abstract Term getKil();
 }

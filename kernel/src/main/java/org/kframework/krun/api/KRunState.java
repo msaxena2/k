@@ -41,7 +41,7 @@ public class KRunState implements Serializable, Comparable<KRunState>, KRunResul
     public Term getRawResult() {
         return rawResult;
     }
-
+    
     public Integer getStateId() {
         return stateId;
     }

@@ -27,7 +27,7 @@ public abstract class KRunUnit {
         this.termContainer = termContainer;
     }
 
-    public Term getKilTerm(Context context) {
-        return termContainer.getKilTerm(context);
+    public Term getKilTerm() {
+        return termContainer.getKilTerm();
     }
 }

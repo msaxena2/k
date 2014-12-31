@@ -7,19 +7,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.uci.ics.jung.graph.util.Pair;
+import org.kframework.backend.java.kil.ConstrainedExecutionGraph;
+import org.kframework.backend.java.kil.ConstrainedRewriteRelation;
 import org.kframework.backend.java.kil.ConstrainedTerm;
 import org.kframework.backend.java.kil.Definition;
 import org.kframework.backend.java.kil.GlobalContext;
+import org.kframework.backend.java.kil.JavaTransition;
 import org.kframework.backend.java.kil.Rule;
 import org.kframework.backend.java.kil.Term;
 import org.kframework.backend.java.kil.TermContext;
 import org.kframework.backend.java.kil.Variable;
+import org.kframework.backend.java.util.JavaKilContainer;
 import org.kframework.compile.utils.RuleCompilerSteps;
 import org.kframework.kil.Rewrite;
 import org.kframework.kil.loader.Context;
 import org.kframework.krun.KRunExecutionException;
 import org.kframework.krun.SubstitutionFilter;
+import org.kframework.krun.api.KRunExecutionGraph;
 import org.kframework.krun.api.KRunState;
+import org.kframework.krun.api.KRunStateUnit;
+
+import org.kframework.krun.api.KRunTransitionUnit;
+import org.kframework.krun.api.KilContainer;
 import org.kframework.krun.api.RewriteRelation;
 import org.kframework.krun.api.SearchResult;
 import org.kframework.krun.api.SearchResults;
@@ -114,7 +124,7 @@ public class JavaSymbolicExecutor implements Executor {
         Rule patternRule = transformer.transformAndEval(pattern);
 
         List<SearchResult> searchResults = new ArrayList<SearchResult>();
-        List<Map<Variable,Term>> hits;
+        List<Map<Variable, Term>> hits;
         Term initialTerm = kilTransformer.transformAndEval(cfg);
         Term targetTerm = null;
         TermContext termContext = TermContext.of(globalContext);
@@ -126,7 +136,7 @@ public class JavaSymbolicExecutor implements Executor {
                     patternRule, bound, depth, searchType, termContext);
         }
 
-        for (Map<Variable,Term> map : hits) {
+        for (Map<Variable, Term> map : hits) {
             // Construct substitution map from the search results
             Map<String, org.kframework.kil.Term> substitutionMap =
                     new HashMap<String, org.kframework.kil.Term>();
@@ -140,7 +150,7 @@ public class JavaSymbolicExecutor implements Executor {
             // Apply the substitution to the pattern
             org.kframework.kil.Term rawResult =
                     (org.kframework.kil.Term) new SubstitutionFilter(substitutionMap, context)
-                        .visitNode(pattern.getBody());
+                            .visitNode(pattern.getBody());
 
             searchResults.add(new SearchResult(
                     new KRunState(rawResult, counter),
@@ -169,29 +179,57 @@ public class JavaSymbolicExecutor implements Executor {
         return patternMatchRewriter.get();
     }
 
-    private RewriteRelation graphStep(org.kframework.kil.Term cfg, int steps, boolean computeGraph)
+    private ConstrainedRewriteRelation javaTraceRun(org.kframework.kil.Term cfg, int steps, boolean computeGraph)
             throws KRunExecutionException {
         Term term = kilTransformer.transformAndEval(cfg);
         TermContext termContext = TermContext.of(globalContext);
-
-        if(javaOptions.patternMatching) {
-            if(computeGraph) {
+        ConstrainedRewriteRelation resultRelation;
+        if (javaOptions.patternMatching) {
+            if (computeGraph) {
                 throw new KRunExecutionException("Sorry! Compute Graph not yet implemented with pattern matching.");
-            }
-            else {
+            } else {
                 //implement this
                 return null;
 
             }
-        }
-        else {
+        } else {
             SymbolicConstraint constraint = new SymbolicConstraint(termContext);
             ConstrainedTerm constrainedTerm = new ConstrainedTerm(term, constraint);
-            getSymbolicRewriter().traceRewrite(constrainedTerm, steps, computeGraph);
+            resultRelation = getSymbolicRewriter().traceRewrite(constrainedTerm, steps, computeGraph);
         }
 
-        return null;
-
+        return resultRelation;
+    }
+    private KRunTransitionUnit transitionTransformer(JavaTransition javaTransition) {
+        KRunTransitionUnit kilTransition = new KRunTransitionUnit(new JavaKilContainer(context,() (Term)javaTransition.getRule()));
     }
 
+    private RewriteRelation toGenericTransformer(ConstrainedRewriteRelation rewriteRelation) {
+        RewriteRelation returnRelation = new RewriteRelation();
+        /* set the final state */
+        returnRelation.setFinalState(new KRunStateUnit(new JavaKilContainer(context, rewriteRelation.getFinalTerm().term()), counter));
+        KRunExecutionGraph executionGraph = null;
+        /* processing the graph */
+        if(rewriteRelation.getConstrainedExecutionGraph().isPresent()) {
+            ConstrainedExecutionGraph constrainedGraph = rewriteRelation.getConstrainedExecutionGraph().get();
+            executionGraph = new KRunExecutionGraph();
+            for(JavaTransition transition : constrainedGraph.getEdges()) {
+                Pair<ConstrainedTerm> nodes = constrainedGraph.getEndpoints(transition);
+                KRunStateUnit node1 = new KRunStateUnit(
+                        new JavaKilContainer(context, nodes.getFirst().term()), counter);
+                KRunStateUnit node2 = new KRunStateUnit(
+                        new JavaKilContainer(context, nodes.getSecond().term()), counter);
+                KRunTransitionUnit kilTransition = transitionTransformer(transition);
+            }
+        }
+        return null;
+    }
+
+    private RewriteRelation graphStep(org.kframework.kil.Term cfg, int steps, boolean computeGraph)
+            throws KRunExecutionException {
+        ConstrainedRewriteRelation resultRelation = javaTraceRun(cfg, steps, computeGraph);
+        /* Process Result Relation i.e convert to generic relation by adding wrapper classes */
+        RewriteRelation returnResult = new RewriteRelation();
+        return null;
+    }
 }

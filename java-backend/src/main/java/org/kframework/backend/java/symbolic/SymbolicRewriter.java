@@ -533,7 +533,7 @@ public class SymbolicRewriter {
     }
 
     public ConstrainedRewriteRelation traceRewrite(ConstrainedTerm constrainedTerm, int bound, boolean computeGraph) {
-        stopwatch.start();
+
         ConstrainedRewriteRelation returnRelation = new ConstrainedRewriteRelation();
         ConstrainedExecutionGraph executionGraph = null;
         if(computeGraph) {
