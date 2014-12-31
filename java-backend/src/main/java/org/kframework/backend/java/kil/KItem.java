@@ -4,6 +4,7 @@ package org.kframework.backend.java.kil;
 import org.kframework.backend.java.builtins.BoolToken;
 import org.kframework.backend.java.builtins.MetaK;
 import org.kframework.backend.java.builtins.SortMembership;
+import org.kframework.backend.java.rewritemachine.KAbstractRewriteMachine;
 import org.kframework.backend.java.symbolic.BuiltinFunction;
 import org.kframework.backend.java.symbolic.JavaExecutionOptions;
 import org.kframework.backend.java.symbolic.Matcher;
@@ -20,9 +21,12 @@ import org.kframework.backend.java.util.Utils;
 import org.kframework.kil.*;
 import org.kframework.main.GlobalOptions;
 import org.kframework.main.Tool;
+import org.kframework.utils.errorsystem.KException.ExceptionType;
 import org.kframework.utils.errorsystem.KExceptionManager;
 import org.kframework.utils.errorsystem.KExceptionManager.KEMException;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,9 +58,14 @@ public final class KItem extends Term {
 
     private final Term kLabel;
     private final Term kList;
-    private final boolean isExactSort;
-    private final Sort sort;
-    private final Set<Sort> possibleSorts;
+
+    // sort info, computed lazily
+    private boolean isExactSort;
+    private Sort sort;
+    private Set<Sort> possibleSorts;
+    private transient boolean enableCache; // for lazy computation
+    private transient TermContext termContext; // for lazy computation
+
     private Boolean evaluable = null;
     private Boolean anywhereApplicable = null;
 
@@ -91,6 +100,19 @@ public final class KItem extends Term {
         this.sort = sort;
         this.isExactSort = isExactSort;
         this.possibleSorts = possibleSorts;
+        this.termContext = null;
+        this.enableCache = false;
+    }
+
+    private KItem(Term kLabel, Term kList, boolean enableCache, TermContext termContext, Source source, Location location) {
+        super(Kind.KITEM, source, location);
+        this.kLabel = kLabel;
+        this.kList = kList;
+        this.sort = null;
+        this.isExactSort = false;
+        this.possibleSorts = null;
+        this.termContext = termContext;
+        this.enableCache = enableCache;
     }
 
     private KItem(Term kLabel, Term kList, TermContext termContext, Tool tool, Source source, Location location) {
@@ -107,7 +129,7 @@ public final class KItem extends Term {
             /* at runtime, checks if the result has been cached */
             CacheTableColKey cacheTabColKey = null;
             CacheTableValue cacheTabVal = null;
-            boolean enableCache = (tool != Tool.KOMPILE)
+            enableCache = (tool != Tool.KOMPILE)
                     && definition.sortPredicateRulesOn(kLabelConstant).isEmpty();
             if (enableCache) {
                 cacheTabColKey = new CacheTableColKey(kLabelConstant, (KList) kList);
@@ -116,19 +138,15 @@ public final class KItem extends Term {
                     sort = cacheTabVal.sort;
                     isExactSort = cacheTabVal.isExactSort;
                     possibleSorts = cacheTabVal.possibleSorts;
+                    this.termContext = null;
                     return;
                 }
             }
 
-            /* cache miss, compute sort information and cache it */
-            cacheTabVal = computeSort(kLabelConstant, (KList) kList, termContext);
-            if (enableCache) {
-                definition.getSortCacheTable().put(cacheTabColKey, cacheTabVal);
-            }
-
-            sort = cacheTabVal.sort;
-            isExactSort = cacheTabVal.isExactSort;
-            possibleSorts = cacheTabVal.possibleSorts;
+            sort = null;
+            isExactSort = false;
+            possibleSorts = null;
+            this.termContext = termContext;
         } else {
             /* not a KLabelConstant or the kList contains a frame variable */
             if (kLabel instanceof KLabelInjection) {
@@ -140,11 +158,18 @@ public final class KItem extends Term {
 
             sort = kind.asSort();
             possibleSorts = Collections.singleton(sort);
+            this.termContext = null;
+            enableCache = false;
         }
     }
 
-    private CacheTableValue computeSort(KLabelConstant kLabelConstant,
-            KList kList, TermContext termContext) {
+    private void computeSort() {
+        if (sort != null) {
+            //computed already
+            return;
+        }
+        KLabelConstant kLabelConstant = (KLabelConstant) kLabel;
+        KList kList = (KList) this.kList;
         Definition definition = termContext.definition();
         Subsorts subsorts = definition.subsorts();
 
@@ -225,7 +250,15 @@ public final class KItem extends Term {
         boolean isExactSort = kLabelConstant.isConstructor() && possibleSorts.isEmpty();
         possibleSorts.add(sort);
 
-        return new CacheTableValue(sort, isExactSort, possibleSorts);
+        this.sort = sort;
+        this.isExactSort = isExactSort;
+        this.possibleSorts = possibleSorts;
+
+        CacheTableValue cacheTabVal = new CacheTableValue(sort, isExactSort, possibleSorts);
+
+        if (enableCache) {
+            definition.getSortCacheTable().put(new CacheTableColKey(kLabelConstant, (KList) kList), cacheTabVal);
+        }
     }
 
     public boolean isEvaluable(TermContext context) {
@@ -283,19 +316,22 @@ public final class KItem extends Term {
                         evaluateFunction(kItem, copyOnShareSubstAndEval, context) :
                             kItem.applyAnywhereRules(copyOnShareSubstAndEval, context);
                 if (result instanceof KItem && ((KItem) result).isEvaluable(context) && result.isGround()) {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("Unable to resolve function symbol:\n\t\t");
-                    sb.append(result);
-                    sb.append('\n');
-                    if (!context.definition().functionRules().isEmpty()) {
-                        sb.append("\tDefined function rules:\n");
-                        for (Rule rule : context.definition().functionRules().get((KLabelConstant) ((KItem) result).kLabel())) {
-                            sb.append("\t\t");
-                            sb.append(rule);
-                            sb.append('\n');
+                    // we do this check because this warning message can be very large and cause OOM
+                    if (options.warnings.includesExceptionType(ExceptionType.WARNING)) {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("Unable to resolve function symbol:\n\t\t");
+                        sb.append(result);
+                        sb.append('\n');
+                        if (!context.definition().functionRules().isEmpty()) {
+                            sb.append("\tDefined function rules:\n");
+                            for (Rule rule : context.definition().functionRules().get((KLabelConstant) ((KItem) result).kLabel())) {
+                                sb.append("\t\t");
+                                sb.append(rule);
+                                sb.append('\n');
+                            }
                         }
+                        kem.registerCriticalWarning(sb.toString(), kItem);
                     }
-                    kem.registerCriticalWarning(sb.toString(), kItem);
                     if (RuleAuditing.isAuditBegun()) {
                         System.err.println("Function failed to evaluate: returned " + result);
                     }
@@ -423,14 +459,8 @@ public final class KItem extends Term {
                             /* rename rule variables in the rule RHS */
                             rightHandSide = rightHandSide.substituteWithBinders(freshSubstitution, context);
                         }
-                        if (copyOnShareSubstAndEval) {
-                            rightHandSide = rightHandSide.copyOnShareSubstAndEval(
-                                    solution,
-                                    rule.reusableVariables().elementSet(),
-                                    context);
-                        } else {
-                            rightHandSide = rightHandSide.substituteAndEvaluate(solution, context);
-                        }
+                        rightHandSide = KAbstractRewriteMachine.construct(rule.rhsInstructions(), solution, copyOnShareSubstAndEval ? rule.reusableVariables().elementSet() : null,
+                                    context, false);
 
                         if (rule.containsAttribute("owise")) {
                             /*
@@ -486,7 +516,7 @@ public final class KItem extends Term {
         }
     }
 
-    private boolean isAnywhereApplicable(TermContext context) {
+    public boolean isAnywhereApplicable(TermContext context) {
         if (anywhereApplicable != null) {
             return anywhereApplicable;
         }
@@ -551,6 +581,7 @@ public final class KItem extends Term {
 
     @Override
     public boolean isExactSort() {
+        computeSort();
         return isExactSort;
     }
 
@@ -568,10 +599,12 @@ public final class KItem extends Term {
 
     @Override
     public Sort sort() {
+        computeSort();
         return sort;
     }
 
     public Set<Sort> possibleSorts() {
+        computeSort();
         return Collections.unmodifiableSet(possibleSorts);
     }
 
@@ -764,6 +797,16 @@ public final class KItem extends Term {
                     && Arrays.deepEquals(sorts, key.sorts)
                     && Arrays.equals(bools, key.bools);
         }
+    }
+
+    /**
+     * When serializing a KItem, compute its sort so that we don't end up serializing the TermContext
+     * @param out
+     * @throws IOException
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        computeSort();
+        out.defaultWriteObject();
     }
 
     static final class CacheTableValue {
