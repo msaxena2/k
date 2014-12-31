@@ -76,6 +76,8 @@ public interface Executor {
     */
     public abstract KRunState step(Term cfg, int steps) throws KRunExecutionException;
 
+    public abstract RewritreRelation
+
     public static class Tool implements Transformation<Void, KRunResult> {
 
         private final KRunOptions options;
