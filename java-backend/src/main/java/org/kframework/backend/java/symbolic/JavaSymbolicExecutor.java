@@ -15,6 +15,7 @@ import org.kframework.backend.java.kil.GlobalContext;
 import org.kframework.backend.java.kil.Rule;
 import org.kframework.backend.java.kil.Term;
 import org.kframework.backend.java.kil.TermContext;
+import org.kframework.backend.java.kil.Transition;
 import org.kframework.backend.java.kil.Variable;
 import org.kframework.compile.utils.RuleCompilerSteps;
 import org.kframework.kil.loader.Context;
@@ -163,8 +164,11 @@ public class JavaSymbolicExecutor implements Executor {
         return internalRun(cfg, steps);
     }
 
-    private KRunGraph genericGraphTransformer(ConstrainedExecutionGraph constainedGraph) {
-        return null;
+    private KRunGraph genericGraphTransformer(ConstrainedExecutionGraph constrainedGraph) {
+        KRunGraph returnGraph = new KRunGraph();
+        for (Transition javaTransition : constrainedGraph.getEdges()) {
+
+        }
     }
 
     private RewriteRelation genericKilTransformer(ConstrainedRewriteRelation constrainedRewriteRelation) {
@@ -176,7 +180,8 @@ public class JavaSymbolicExecutor implements Executor {
 
         /* Processing the execution trace, if existent */
         if(constrainedRewriteRelation.getConstrainedExecutionGraph().isPresent()) {
-            KRunGraph executionGraph = genericGraphTransformer(constrainedRewriteRelation.getConstrainedExecutionGraph());
+            KRunGraph executionGraph = genericGraphTransformer(constrainedRewriteRelation.
+                    getConstrainedExecutionGraph().get());
         }
     }
 
