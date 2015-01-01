@@ -33,7 +33,7 @@ public class RewriteRelation {
         return executionGraph;
     }
 
-    public void setExecutionGraph(Optional<KRunGraph> executionGraph) {
-        this.executionGraph = executionGraph;
+    public void setExecutionGraph(KRunGraph executionGraph) {
+        this.executionGraph = Optional.of(executionGraph);
     }
 }

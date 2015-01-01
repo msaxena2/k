@@ -212,12 +212,14 @@ public class JavaSymbolicExecutor implements Executor {
                 new BackendJavaKILtoKILTransformer(context)
         );
         RewriteRelation returnRelation = new RewriteRelation(new KRunState(finalTerm, counter));
-
+        KRunGraph executionGraph = null;
         /* Processing the execution trace, if existent */
         if(constrainedRewriteRelation.getConstrainedExecutionGraph().isPresent()) {
-            KRunGraph executionGraph = genericGraphTransformer(constrainedRewriteRelation.
+            executionGraph = genericGraphTransformer(constrainedRewriteRelation.
                     getConstrainedExecutionGraph().get());
         }
+        returnRelation.setExecutionGraph(executionGraph);
+        return returnRelation;
     }
 
     private ConstrainedRewriteRelation internalTraceStep(org.kframework.kil.Term cfg, int steps, boolean computeGraph)
