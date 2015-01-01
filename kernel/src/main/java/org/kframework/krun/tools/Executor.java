@@ -14,6 +14,7 @@ import org.kframework.kil.Sort;
 import org.kframework.kil.Term;
 import org.kframework.kil.Variable;
 import org.kframework.kil.loader.Context;
+import org.kframework.krun.api.RewriteRelation;
 import org.kframework.utils.errorsystem.ParseFailedException;
 import org.kframework.krun.KRunExecutionException;
 import org.kframework.krun.KRunOptions;
@@ -76,7 +77,7 @@ public interface Executor {
     */
     public abstract KRunState step(Term cfg, int steps) throws KRunExecutionException;
 
-    public abstract RewritreRelation
+    public abstract RewriteRelation traceStep(Term cgf, int steps, boolean computeGraph);
 
     public static class Tool implements Transformation<Void, KRunResult> {
 

@@ -27,14 +27,27 @@ public class Transition implements Serializable{
     */
     private String readString;
 
+    private SubstitutionMap substitution;
+
     private TransitionType type;
 
+    //Todo: Refactor this function, probably not needed anymore (manasvi)
     protected Transition(TransitionType type, String label, ASTNode rule,
         String readString) {
         this.type = type;
         this.label = label;
         this.rule = rule;
         this.readString = readString;
+    }
+
+    public Transition(TransitionType type, String label, ASTNode rule,
+        String readString, SubstitutionMap substitution) {
+        this.type = type;
+        this.label = label;
+        this.rule = rule;
+        this.readString = readString;
+        this.substitution = substitution;
+
     }
 
     public static Transition rule(ASTNode rule) {
