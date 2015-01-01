@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.uci.ics.jung.graph.util.Pair;
 import org.kframework.backend.java.kil.ConstrainedExecutionGraph;
 import org.kframework.backend.java.kil.ConstrainedRewriteRelation;
 import org.kframework.backend.java.kil.ConstrainedTerm;
@@ -164,11 +165,45 @@ public class JavaSymbolicExecutor implements Executor {
         return internalRun(cfg, steps);
     }
 
+
     private KRunGraph genericGraphTransformer(ConstrainedExecutionGraph constrainedGraph) {
         KRunGraph returnGraph = new KRunGraph();
         for (Transition javaTransition : constrainedGraph.getEdges()) {
+            Map<org.kframework.kil.Variable, org.kframework.kil.Term> genericSubstitution = new HashMap<>();
+            Map<Variable, Term> javaSubstitution = javaTransition.getSubstitution();
+            /* Process Substitution */
+            for (Variable key : javaSubstitution.keySet()) {
+                org.kframework.kil.Variable genericKey = (org.kframework.kil.Variable) key.accept(
+                        new BackendJavaKILtoKILTransformer(context));
+                org.kframework.kil.Term genericValue = (org.kframework.kil.Term) javaSubstitution.get(key).accept(
+                        new BackendJavaKILtoKILTransformer(context));
+                genericSubstitution.put(genericKey, genericValue);
+            }
+            /* Process Rule */
+            //Todo: Transformer for rule has not yet been implemented, hence this line will fail
+            org.kframework.kil.Rule rule = (org.kframework.kil.Rule) javaTransition.getRule().accept(
+                    new BackendJavaKILtoKILTransformer(context));
+            org.kframework.krun.api.Transition genericTransition = new org.kframework.krun.api.Transition(
+                    org.kframework.krun.api.Transition.TransitionType.RULE, "", rule, "", genericSubstitution);
+
+            /* Process nodes connecting transition */
+            Pair<ConstrainedTerm> nodes = constrainedGraph.getEndpoints(javaTransition);
+            org.kframework.kil.Term node1 = (org.kframework.kil.Term) nodes.getFirst().term().accept(
+                    new BackendJavaKILtoKILTransformer(context)
+            );
+            KRunState state1 = new KRunState(node1, counter);
+
+
+            org.kframework.kil.Term node2 = (org.kframework.kil.Term) nodes.getSecond().term().accept(
+                    new BackendJavaKILtoKILTransformer(context)
+            );
+            KRunState state2 = new KRunState(node2, counter);
+            returnGraph.addVertex(state1);
+            returnGraph.addVertex(state2);
+            returnGraph.addEdge(genericTransition, state1, state2);
 
         }
+        return returnGraph;
     }
 
     private RewriteRelation genericKilTransformer(ConstrainedRewriteRelation constrainedRewriteRelation) {
