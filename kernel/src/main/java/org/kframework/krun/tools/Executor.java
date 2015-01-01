@@ -1,6 +1,7 @@
 // Copyright (c) 2013-2014 K Team. All Rights Reserved.
 package org.kframework.krun.tools;
 
+import org.kframework.backend.java.kil.ConstrainedRewriteRelation;
 import org.kframework.backend.unparser.PrintSearchResult;
 import org.kframework.compile.utils.CompilerStepDone;
 import org.kframework.compile.utils.RuleCompilerSteps;
@@ -77,7 +78,22 @@ public interface Executor {
     */
     public abstract KRunState step(Term cfg, int steps) throws KRunExecutionException;
 
-    public abstract RewriteRelation traceStep(Term cgf, int steps, boolean computeGraph);
+    /**
+     Execute a term in normal-execution mode for a specified number of steps
+     @exception KRunExecutionException Thrown if the backend fails to successfully execute the
+     term
+     @exception UnsupportedOperationException The backend implementing this interface does not
+     support bounded stepping
+     @return An object containing both metadata about krun's execution, information about
+     the resulting term after executing the specified number of steps (or fewer if no further
+     rewrites are possible), and the graph with all states and transitions in the specified run
+     if the computeGraph option is specified
+      * @param cfg The K term to rewrite
+     * @param steps The maximum number of transitions to execute for (zero if you want to rewrite
+     * @param computeGraph Computes the entire graph of the execution if specified as true.
+only until the first transition)
+     */
+    public abstract ConstrainedRewriteRelation traceStep(Term cfg, int steps, boolean computeGraph) throws KRunExecutionException;
 
     public static class Tool implements Transformation<Void, KRunResult> {
 
