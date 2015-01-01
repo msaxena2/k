@@ -93,7 +93,7 @@ public interface Executor {
      * @param computeGraph Computes the entire graph of the execution if specified as true.
 only until the first transition)
      */
-    public abstract ConstrainedRewriteRelation traceStep(Term cfg, int steps, boolean computeGraph) throws KRunExecutionException;
+    public abstract RewriteRelation traceStep(Term cfg, int steps, boolean computeGraph) throws KRunExecutionException;
 
     public static class Tool implements Transformation<Void, KRunResult> {
 
