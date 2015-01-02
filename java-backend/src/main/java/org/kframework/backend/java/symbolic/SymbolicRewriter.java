@@ -510,7 +510,7 @@ public class SymbolicRewriter {
 
     public ConstrainedRewriteRelation traceRewrite(ConstrainedTerm constrainedTerm, int bound, boolean computeGraph) {
         stopwatch.start();
-        ConstrainedRewriteRelation returnRelation = new ConstrainedRewriteRelation(constrainedTerm, null);
+        ConstrainedRewriteRelation returnRelation = new ConstrainedRewriteRelation();
         ConstrainedExecutionGraph executionGraph = null;
         if(computeGraph) {
             executionGraph = new ConstrainedExecutionGraph();
@@ -532,11 +532,11 @@ public class SymbolicRewriter {
                 constrainedTerm = result;
 
             } else {
-                returnRelation.setFinalTerm(constrainedTerm);
-                returnRelation.setConstrainedExecutionGraph(executionGraph);
                 break;
             }
         }
+        returnRelation.setFinalTerm(constrainedTerm);
+        returnRelation.setConstrainedExecutionGraph(executionGraph);
         stopwatch.stop();
         if (definition.context().krunOptions.experimental.statistics) {
             System.err.println("[" + step + ", " + stopwatch + "]");
