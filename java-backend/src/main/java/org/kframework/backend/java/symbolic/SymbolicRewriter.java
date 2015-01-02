@@ -65,7 +65,7 @@ public class SymbolicRewriter {
 
         this.strategy = new TransitionCompositeStrategy(kompileOptions.transition);
     }
-    
+
     /**
      * Gets the rules that could be applied to a given term according to the
      * rule indexing mechanism.
@@ -97,7 +97,7 @@ public class SymbolicRewriter {
     private void computeRewriteStep(ConstrainedTerm subject, int successorBound) {
         results.clear();
         appliedRules.clear();
-
+        substitutions.clear();
         if (successorBound == 0) {
             return;
         }
