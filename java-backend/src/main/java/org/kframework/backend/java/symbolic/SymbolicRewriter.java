@@ -554,8 +554,9 @@ public class SymbolicRewriter {
                 constrainedTerm = result;
 
             } else {
-                returnRelation.setFinalTerm(result);
+                returnRelation.setFinalTerm(constrainedTerm);
                 returnRelation.setConstrainedExecutionGraph(executionGraph);
+                break;
             }
         }
         return returnRelation;

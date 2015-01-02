@@ -34,6 +34,6 @@ public class RewriteRelation {
     }
 
     public void setExecutionGraph(KRunGraph executionGraph) {
-        this.executionGraph = Optional.of(executionGraph);
+        this.executionGraph = Optional.ofNullable(executionGraph);
     }
 }

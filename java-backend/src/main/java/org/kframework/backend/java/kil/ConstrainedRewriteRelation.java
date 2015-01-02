@@ -35,6 +35,6 @@ public class ConstrainedRewriteRelation {
     }
 
     public void setConstrainedExecutionGraph(ConstrainedExecutionGraph constrainedExecutionGraph) {
-        this.constrainedExecutionGraph = Optional.of(constrainedExecutionGraph);
+        this.constrainedExecutionGraph = Optional.ofNullable(constrainedExecutionGraph);
     }
 }

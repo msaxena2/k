@@ -67,7 +67,7 @@ public class JavaSymbolicExecutor implements Executor {
 
     @Override
     public KRunState run(org.kframework.kil.Term cfg) throws KRunExecutionException {
-        return internalRun(cfg, -1);
+        return traceStep(cfg, -1, false).getFinalState();
     }
 
     private KRunState internalRun(org.kframework.kil.Term cfg, int bound) throws KRunExecutionException {
@@ -162,7 +162,8 @@ public class JavaSymbolicExecutor implements Executor {
     @Override
     public KRunState step(org.kframework.kil.Term cfg, int steps)
             throws KRunExecutionException {
-        return internalRun(cfg, steps);
+        RewriteRelation finalRelation = traceStep(cfg, steps, false);
+        return finalRelation.getFinalState();
     }
 
 
