@@ -37,12 +37,14 @@ public interface Executor {
     /**
     Execute a term in normal execution mode until it cannot rewrite any further
     @param cfg The term to rewrite
+    @param computeGraph if true, traceGraph is computed, and Rewrite Relation's optional Graph
+    parameter will contain the graph
     @return An object containing both metadata about krun's execution, and information about
     the exit state of the execution
     @exception KRunExecutionException Thrown if the backend fails to successfully execute the
     term
     */
-    public abstract KRunState run(Term cfg) throws KRunExecutionException;
+    public abstract RewriteRelation run(Term cfg, boolean computeGraph) throws KRunExecutionException;
 
     /**
     Perform a breadth-first search of the transition system starting at a particular term.
@@ -158,7 +160,7 @@ public interface Executor {
                 result = executor.step(initialConfiguration.get(), options.depth, false).getFinalState();
                 sw.printIntermediate("Bounded execution total");
             } else {
-                result = executor.run(initialConfiguration.get());
+                result = executor.run(initialConfiguration.get(), false).getFinalState();
                 sw.printIntermediate("Normal execution total");
             }
             ASTNode pattern = pattern();

@@ -42,6 +42,7 @@ public class JavaSymbolicExecutor implements Executor {
     private final KILtoBackendJavaKILTransformer transformer;
     private final Context context;
     private final KRunState.Counter counter;
+    private final int unboundSteps = -1;
 
     @Inject
     JavaSymbolicExecutor(
@@ -66,8 +67,8 @@ public class JavaSymbolicExecutor implements Executor {
     }
 
     @Override
-    public KRunState run(org.kframework.kil.Term cfg) throws KRunExecutionException {
-        return step(cfg, -1, false).getFinalState();
+    public RewriteRelation run(org.kframework.kil.Term cfg, boolean computeGraph) throws KRunExecutionException {
+        return step(cfg, unboundSteps, computeGraph);
     }
 
     @Override
