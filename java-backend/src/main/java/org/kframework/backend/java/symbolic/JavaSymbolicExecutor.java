@@ -42,7 +42,7 @@ public class JavaSymbolicExecutor implements Executor {
     private final KILtoBackendJavaKILTransformer transformer;
     private final Context context;
     private final KRunState.Counter counter;
-    private final int unboundSteps = -1;
+    private final static int unboundSteps = -1;
 
     @Inject
     JavaSymbolicExecutor(
