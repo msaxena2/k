@@ -77,7 +77,7 @@ public interface Executor {
     @param computeGraph Computes the entire graph of the execution if specified as true.
     only until the first transition)
      */
-    public abstract RewriteRelation traceStep(Term cfg, int steps, boolean computeGraph) throws KRunExecutionException;
+    public abstract RewriteRelation step(Term cfg, int steps, boolean computeGraph) throws KRunExecutionException;
 
     public static class Tool implements Transformation<Void, KRunResult> {
 
@@ -155,7 +155,7 @@ public interface Executor {
         public KRunResult execute() throws ParseFailedException, KRunExecutionException {
             KRunState result;
             if (options.depth != null) {
-                result = executor.traceStep(initialConfiguration.get(), options.depth, false).getFinalState();
+                result = executor.step(initialConfiguration.get(), options.depth, false).getFinalState();
                 sw.printIntermediate("Bounded execution total");
             } else {
                 result = executor.run(initialConfiguration.get());
