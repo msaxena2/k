@@ -65,29 +65,7 @@ public class SymbolicRewriter {
 
         this.strategy = new TransitionCompositeStrategy(kompileOptions.transition);
     }
-
-    public ConstrainedTerm rewrite(ConstrainedTerm constrainedTerm, int bound) {
-        stopwatch.start();
-
-        for (step = 0; step != bound; ++step) {
-            /* get the first solution */
-            computeRewriteStep(constrainedTerm, 1);
-            ConstrainedTerm result = getTransition(0);
-            if (result != null) {
-                constrainedTerm = result;
-            } else {
-                break;
-            }
-        }
-
-        stopwatch.stop();
-        if (definition.context().krunOptions.experimental.statistics) {
-            System.err.println("[" + step + ", " + stopwatch + "]");
-        }
-
-        return constrainedTerm;
-    }
-
+    
     /**
      * Gets the rules that could be applied to a given term according to the
      * rule indexing mechanism.
@@ -531,7 +509,7 @@ public class SymbolicRewriter {
     }
 
     public ConstrainedRewriteRelation traceRewrite(ConstrainedTerm constrainedTerm, int bound, boolean computeGraph) {
-
+        stopwatch.start();
         ConstrainedRewriteRelation returnRelation = new ConstrainedRewriteRelation();
         ConstrainedExecutionGraph executionGraph = null;
         if(computeGraph) {
@@ -558,6 +536,10 @@ public class SymbolicRewriter {
                 returnRelation.setConstrainedExecutionGraph(executionGraph);
                 break;
             }
+        }
+        stopwatch.stop();
+        if (definition.context().krunOptions.experimental.statistics) {
+            System.err.println("[" + step + ", " + stopwatch + "]");
         }
         return returnRelation;
 
