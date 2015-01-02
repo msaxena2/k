@@ -64,21 +64,6 @@ public interface Executor {
 
     /**
     Execute a term in normal-execution mode for a specified number of steps
-    @param cfg The K term to rewrite
-    @param steps The maximum number of transitions to execute for (zero if you want to rewrite
-    only until the first transition)
-    @exception KRunExecutionException Thrown if the backend fails to successfully execute the
-    term
-    @exception UnsupportedOperationException The backend implementing this interface does not
-    support bounded stepping
-    @return An object containing both metadata about krun's execution, and information about
-    the resulting term after executing the specified number of steps (or fewer if no further
-    rewrites are possible)
-    */
-    public abstract KRunState step(Term cfg, int steps) throws KRunExecutionException;
-
-    /**
-    Execute a term in normal-execution mode for a specified number of steps
     @exception KRunExecutionException Thrown if the backend fails to successfully execute the
     term
     @exception UnsupportedOperationException The backend implementing this interface does not

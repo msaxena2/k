@@ -70,28 +70,6 @@ public class JavaSymbolicExecutor implements Executor {
         return traceStep(cfg, -1, false).getFinalState();
     }
 
-    private KRunState internalRun(org.kframework.kil.Term cfg, int bound) throws KRunExecutionException {
-        ConstrainedTerm result = javaKILRun(cfg, bound);
-        org.kframework.kil.Term kilTerm = (org.kframework.kil.Term) result.term().accept(
-                new BackendJavaKILtoKILTransformer(context));
-        KRunState returnResult = new KRunState(kilTerm, counter);
-        return returnResult;
-    }
-
-    private ConstrainedTerm javaKILRun(org.kframework.kil.Term cfg, int bound) {
-        Term term = kilTransformer.transformAndEval(cfg);
-        TermContext termContext = TermContext.of(globalContext);
-
-        if (javaOptions.patternMatching) {
-            ConstrainedTerm rewriteResult = new ConstrainedTerm(getPatternMatchRewriter().rewrite(term, bound, termContext), termContext);
-            return rewriteResult;
-        } else {
-            SymbolicConstraint constraint = new SymbolicConstraint(termContext);
-            ConstrainedTerm constrainedTerm = new ConstrainedTerm(term, constraint);
-            return getSymbolicRewriter().rewrite(constrainedTerm, bound);
-        }
-    }
-
     @Override
     public SearchResults search(
             Integer bound,
@@ -157,13 +135,6 @@ public class JavaSymbolicExecutor implements Executor {
                 null);
 
         return retval;
-    }
-
-    @Override
-    public KRunState step(org.kframework.kil.Term cfg, int steps)
-            throws KRunExecutionException {
-        RewriteRelation finalRelation = traceStep(cfg, steps, false);
-        return finalRelation.getFinalState();
     }
 
 
@@ -232,8 +203,7 @@ public class JavaSymbolicExecutor implements Executor {
                 throw new KRunExecutionException("compute Graph with pattern matching not yet implemented!");
             }
             ConstrainedTerm rewriteResult = new ConstrainedTerm(getPatternMatchRewriter().rewrite(term, steps, termContext), termContext);
-            //Todo: Change this to work with the new implementation (manasvi)
-            return null;
+            return new ConstrainedRewriteRelation(rewriteResult, null);
         }
         SymbolicConstraint constraint = new SymbolicConstraint(termContext);
         ConstrainedTerm constrainedTerm = new ConstrainedTerm(term, constraint);
