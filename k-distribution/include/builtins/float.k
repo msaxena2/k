@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2014 K Team. All Rights Reserved.
+// Copyright (c) 2012-2015 K Team. All Rights Reserved.
 require "bool.k"
 require "int.k"
 module FLOAT-SYNTAX-HOOKS
@@ -26,6 +26,7 @@ module FLOAT-HOOKS
 
   syntax Bool ::= signFloat(Float)      [function, hook(#FLOAT:sign)]
                 | isNaN(Float)          [function, smtlib((not (== #1 #1))), hook(#FLOAT:isNaN)]
+                | isInfinite(Float)     [function]
   syntax MInt ::= significandFloat(Float) [function, hook(#FLOAT:significand)]
 
   syntax Float ::= fpNaN(Int, Int)              [smtlib((as NaN (_ FP #1 #2)))]
@@ -74,5 +75,7 @@ module FLOAT-HOOKS
   syntax Int ::= Float2Int(Float)    [function, klabel(Float2Int), latex({\\it{}Float2Int}), hook(#CONVERSION:float2Int)]
 
   rule sqrtFloat(F:Float) => rootFloat(F, 2)
+
+  rule isInfinite(F:Float) => F >Float maxValueFloat(precisionFloat(F), exponentBitsFloat(F)) orBool F <Float --Float maxValueFloat(precisionFloat(F), exponentBitsFloat(F))
 
 endmodule

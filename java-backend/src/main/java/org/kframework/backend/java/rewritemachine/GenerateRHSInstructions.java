@@ -1,4 +1,4 @@
-// Copyright (c) 2014 K Team. All Rights Reserved.
+// Copyright (c) 2014-2015 K Team. All Rights Reserved.
 package org.kframework.backend.java.rewritemachine;
 
 import java.util.ArrayList;
@@ -146,11 +146,7 @@ public class GenerateRHSInstructions extends BottomUpVisitor {
             node.kLabel().accept(this);
             rhsSchedule.add(RHSInstruction.CONSTRUCT(
                     new Constructor(ConstructorType.KITEM)));
-            if (!(node.kLabel() instanceof KLabelConstant)
-                    || (node.isAnywhereApplicable(context)
-                            || ((KLabelConstant)node.kLabel()).isFunction())) {
-                rhsSchedule.add(RHSInstruction.EVAL);
-            }
+            rhsSchedule.add(RHSInstruction.EVAL);
         }
     }
 
