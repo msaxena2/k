@@ -18,9 +18,8 @@ import org.kframework.backend.java.kil.Rule;
 import org.kframework.backend.java.kil.Term;
 import org.kframework.backend.java.kil.TermContext;
 import org.kframework.backend.java.kil.Variable;
-import org.kframework.backend.java.util.JavaKilContainer;
+import org.kframework.backend.java.util.JavaKilTermContainer;
 import org.kframework.compile.utils.RuleCompilerSteps;
-import org.kframework.kil.Rewrite;
 import org.kframework.kil.loader.Context;
 import org.kframework.krun.KRunExecutionException;
 import org.kframework.krun.SubstitutionFilter;
@@ -29,7 +28,6 @@ import org.kframework.krun.api.KRunState;
 import org.kframework.krun.api.KRunStateUnit;
 
 import org.kframework.krun.api.KRunTransitionUnit;
-import org.kframework.krun.api.KilContainer;
 import org.kframework.krun.api.RewriteRelation;
 import org.kframework.krun.api.SearchResult;
 import org.kframework.krun.api.SearchResults;
@@ -202,13 +200,13 @@ public class JavaSymbolicExecutor implements Executor {
         return resultRelation;
     }
     private KRunTransitionUnit transitionTransformer(JavaTransition javaTransition) {
-        KRunTransitionUnit kilTransition = new KRunTransitionUnit(new JavaKilContainer(context,() (Term)javaTransition.getRule()));
+        KRunTransitionUnit kilTransition = new KRunTransitionUnit(new JavaKilTermContainer(context,() (Term)javaTransition.getRule()));
     }
 
     private RewriteRelation toGenericTransformer(ConstrainedRewriteRelation rewriteRelation) {
         RewriteRelation returnRelation = new RewriteRelation();
         /* set the final state */
-        returnRelation.setFinalState(new KRunStateUnit(new JavaKilContainer(context, rewriteRelation.getFinalTerm().term()), counter));
+        returnRelation.setFinalState(new KRunStateUnit(new JavaKilTermContainer(context, rewriteRelation.getFinalTerm().term()), counter));
         KRunExecutionGraph executionGraph = null;
         /* processing the graph */
         if(rewriteRelation.getConstrainedExecutionGraph().isPresent()) {
@@ -217,9 +215,9 @@ public class JavaSymbolicExecutor implements Executor {
             for(JavaTransition transition : constrainedGraph.getEdges()) {
                 Pair<ConstrainedTerm> nodes = constrainedGraph.getEndpoints(transition);
                 KRunStateUnit node1 = new KRunStateUnit(
-                        new JavaKilContainer(context, nodes.getFirst().term()), counter);
+                        new JavaKilTermContainer(context, nodes.getFirst().term()), counter);
                 KRunStateUnit node2 = new KRunStateUnit(
-                        new JavaKilContainer(context, nodes.getSecond().term()), counter);
+                        new JavaKilTermContainer(context, nodes.getSecond().term()), counter);
                 KRunTransitionUnit kilTransition = transitionTransformer(transition);
             }
         }

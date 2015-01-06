@@ -5,17 +5,25 @@ package org.kframework.krun.api;
 import org.kframework.kil.Term;
 import org.kframework.kil.loader.Context;
 
+import java.util.Optional;
+
 /**
  * Abstract class, to be extended by every container specific to the backend.
  * Allows for lazy evaluation of a backend specific term to a generic kernel term.
  */
-public abstract class KilContainer {
+public abstract class KilTermContainer {
 
-    protected Term kilTerm;
+    protected Optional<Term> kilTerm;
 
     protected Context context;
 
-    public KilContainer(Context context) {
+    public KilTermContainer(Context context) {
+        this.context = context;
+        this.kilTerm = Optional.ofNullable(null);
+    }
+
+    public KilTermContainer(Context context, Term kilTerm) {
+        this.kilTerm = Optional.of(kilTerm);
         this.context = context;
     }
 
@@ -25,5 +33,9 @@ public abstract class KilContainer {
      * or calculate it using the context and the backend term, and then return it.
      */
 
-    public abstract Term getKil();
+    public abstract Term getKilTerm();
+
+    public abstract boolean equals(Object obj);
+
+    public abstract int hashCode();
 }

@@ -3,7 +3,6 @@
 package org.kframework.krun.api;
 
 import org.kframework.kil.Term;
-import org.kframework.kil.loader.Context;
 
 /**
  * A Unit of KRun's computation. It can represent a state, transition e.t.c.
@@ -13,17 +12,17 @@ import org.kframework.kil.loader.Context;
 
 public abstract class KRunUnit {
 
-    private KilContainer termContainer;
+    private KilTermContainer termContainer;
 
-    public KRunUnit(KilContainer termContainer) {
+    public KRunUnit(KilTermContainer termContainer) {
         this.termContainer = termContainer;
     }
 
-    public KilContainer getTermContainer() {
+    public KilTermContainer getTermContainer() {
         return termContainer;
     }
 
-    public void setTermContainer(KilContainer termContainer) {
+    public void setTermContainer(KilTermContainer termContainer) {
         this.termContainer = termContainer;
     }
 

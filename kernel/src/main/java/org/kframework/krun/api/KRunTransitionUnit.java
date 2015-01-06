@@ -9,9 +9,9 @@ import java.util.Map;
  */
 public class KRunTransitionUnit extends KRunUnit{
 
-    Map<KilContainer, KilContainer> substMap;
+    Map<KilTermContainer, KilTermContainer> substMap;
 
-    public KRunTransitionUnit(KilContainer transitionRule) {
+    public KRunTransitionUnit(KilTermContainer transitionRule) {
         super(transitionRule);
     }
 }

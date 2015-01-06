@@ -2,8 +2,6 @@
 
 package org.kframework.krun.api;
 
-import com.google.inject.Singleton;
-
 /**
  * Represents a state in KRun
  */
@@ -11,7 +9,7 @@ public class KRunStateUnit extends KRunUnit{
 
     private int stateId;
 
-    public KRunStateUnit(KilContainer stateContainer, KRunState.Counter counter) {
+    public KRunStateUnit(KilTermContainer stateContainer, KRunState.Counter counter) {
         super(stateContainer);
         stateId = counter.getNextState();
         counter.setNextState(counter.getNextState() + 1);
