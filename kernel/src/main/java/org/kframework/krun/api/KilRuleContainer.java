@@ -1,4 +1,4 @@
-package org.kframework.krun.api.io;
+package org.kframework.krun.api;
 
 import org.kframework.kil.Context;
 import org.kframework.kil.Rule;
