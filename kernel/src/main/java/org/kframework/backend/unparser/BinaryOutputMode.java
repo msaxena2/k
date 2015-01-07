@@ -34,7 +34,7 @@ public class BinaryOutputMode implements Transformation<KRunResult, InputStream>
 
         Object toSerialize = result;
         if (result instanceof KRunState) {
-            toSerialize = ((KRunState)result).getRawResult();
+            toSerialize = ((KRunState)result).getKilResult();
         } else if (result instanceof SearchResults) {
             toSerialize = ((SearchResults)result).getGraph();
         }

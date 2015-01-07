@@ -28,7 +28,7 @@ public class PrettyPrintingOutputMode  {
 
         @Override
         public Term run(KRunState state, Attributes a) {
-            return concretizer.concretize(a.typeSafeGet(Context.class), state.getRawResult());
+            return concretizer.concretize(a.typeSafeGet(Context.class), state.getKilResult());
         }
 
         @Override

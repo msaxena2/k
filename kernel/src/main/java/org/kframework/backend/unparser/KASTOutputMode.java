@@ -19,7 +19,7 @@ public class KASTOutputMode {
 
         @Override
         public Term run(KRunState state, Attributes a) {
-            return state.getRawResult();
+            return state.getKilResult();
         }
 
         @Override

@@ -161,7 +161,7 @@ public interface Executor {
             ASTNode pattern = pattern();
             if (pattern != null && !options.search()) {
                 SearchPattern searchPattern = new SearchPattern(pattern);
-                Term res = result.getRawResult();
+                Term res = result.getKilResult();
                 return executor.search(1, 1, SearchType.FINAL, searchPattern.patternRule, res, searchPattern.steps);
             }
             return result;
