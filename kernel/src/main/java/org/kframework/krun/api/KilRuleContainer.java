@@ -1,6 +1,6 @@
 package org.kframework.krun.api;
 
-import org.kframework.kil.Context;
+import org.kframework.kil.loader.Context;
 import org.kframework.kil.Rule;
 
 import java.util.Optional;
@@ -9,7 +9,7 @@ import java.util.Optional;
  * Container for Generic Kil Rules.
  */
 public abstract class KilRuleContainer {
-    private Optional<Rule> rule;
+    protected Optional<Rule> rule;
 
     protected Context context;
 
@@ -18,6 +18,10 @@ public abstract class KilRuleContainer {
         this.context = context;
     }
 
+    public KilRuleContainer(Context context) {
+        this.context = context;
+        rule = Optional.empty();
+    }
 
     /**
      * To be implemented in the extending class.
