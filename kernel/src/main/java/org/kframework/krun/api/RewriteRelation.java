@@ -11,21 +11,27 @@ import java.util.Optional;
  */
 public class RewriteRelation {
     public KRunState finalState;
-    Optional<KRunExecutionGraph> executionGraph;
+
+    Optional<KRunGraph> executionGraph;
+
+    public RewriteRelation(KRunState finalState, KRunGraph executionGraph) {
+        this.finalState = finalState;
+        this.executionGraph = Optional.ofNullable(executionGraph);
+    }
 
     public KRunState getFinalState() {
         return finalState;
     }
 
-    public void setFinalState(KRunStateUnit finalState) {
+    public void setFinalState(KRunState finalState) {
         this.finalState = finalState;
     }
 
-    public Optional<KRunExecutionGraph> getExecutionGraph() {
-        return executionGraph;
+    public KRunGraph getExecutionGraph() {
+        return executionGraph.get();
     }
 
-    public void setExecutionGraph(KRunExecutionGraph executionGraph) {
-        this.executionGraph = Optional.of(executionGraph);
+    public void setExecutionGraph(KRunGraph executionGraph) {
+        this.executionGraph = Optional.ofNullable(executionGraph);
     }
 }

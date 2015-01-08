@@ -4,10 +4,12 @@ package org.kframework.backend.java.symbolic;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.uci.ics.jung.graph.util.Pair;
+
+import com.beust.jcommander.internal.Maps;
 import org.kframework.backend.java.kil.ConstrainedExecutionGraph;
 import org.kframework.backend.java.kil.ConstrainedRewriteRelation;
 import org.kframework.backend.java.kil.ConstrainedTerm;
@@ -18,20 +20,20 @@ import org.kframework.backend.java.kil.Rule;
 import org.kframework.backend.java.kil.Term;
 import org.kframework.backend.java.kil.TermContext;
 import org.kframework.backend.java.kil.Variable;
+import org.kframework.backend.java.util.JavaKilRuleContainer;
 import org.kframework.backend.java.util.JavaKilTermContainer;
 import org.kframework.compile.utils.RuleCompilerSteps;
 import org.kframework.kil.loader.Context;
 import org.kframework.krun.KRunExecutionException;
 import org.kframework.krun.SubstitutionFilter;
-import org.kframework.krun.api.KRunExecutionGraph;
+import org.kframework.krun.api.KRunGraph;
 import org.kframework.krun.api.KRunState;
-import org.kframework.krun.api.KRunStateUnit;
-
-import org.kframework.krun.api.KRunTransitionUnit;
+import org.kframework.krun.api.KilTermContainer;
 import org.kframework.krun.api.RewriteRelation;
 import org.kframework.krun.api.SearchResult;
 import org.kframework.krun.api.SearchResults;
 import org.kframework.krun.api.SearchType;
+import org.kframework.krun.api.Transition;
 import org.kframework.krun.tools.Executor;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -199,36 +201,42 @@ public class JavaSymbolicExecutor implements Executor {
 
         return resultRelation;
     }
-    private KRunTransitionUnit transitionTransformer(JavaTransition javaTransition) {
-        KRunTransitionUnit kilTransition = new KRunTransitionUnit(new JavaKilTermContainer(context,() (Term)javaTransition.getRule()));
+    private Transition transitionTransformer(JavaTransition javaTransition) {
+        JavaKilRuleContainer ruleContainer = new JavaKilRuleContainer(
+                javaTransition.getRule(), context
+        );
+        /* Process Substitution */
+        Map<Variable, Term> javaSubs = javaTransition.getSubstitution();
+        Map<KilTermContainer, KilTermContainer> genericSubs = Maps.newLinkedHashMap();
+        for (Variable key : javaSubs.keySet()) {
+            JavaKilTermContainer javaKey = new JavaKilTermContainer(context, key);
+            JavaKilTermContainer javaVal = new JavaKilTermContainer(context, javaSubs.get(key));
+            genericSubs.put(javaKey, javaVal);
+        }
+        return new Transition(Transition.TransitionType.RULE, "",
     }
 
-    private RewriteRelation toGenericTransformer(ConstrainedRewriteRelation rewriteRelation) {
-        RewriteRelation returnRelation = new RewriteRelation();
-        /* set the final state */
-        returnRelation.setFinalState(new KRunStateUnit(new JavaKilTermContainer(context, rewriteRelation.getFinalTerm().term()), counter));
-        KRunExecutionGraph executionGraph = null;
-        /* processing the graph */
-        if(rewriteRelation.getConstrainedExecutionGraph().isPresent()) {
-            ConstrainedExecutionGraph constrainedGraph = rewriteRelation.getConstrainedExecutionGraph().get();
-            executionGraph = new KRunExecutionGraph();
-            for(JavaTransition transition : constrainedGraph.getEdges()) {
-                Pair<ConstrainedTerm> nodes = constrainedGraph.getEndpoints(transition);
-                KRunStateUnit node1 = new KRunStateUnit(
-                        new JavaKilTermContainer(context, nodes.getFirst().term()), counter);
-                KRunStateUnit node2 = new KRunStateUnit(
-                        new JavaKilTermContainer(context, nodes.getSecond().term()), counter);
-                KRunTransitionUnit kilTransition = transitionTransformer(transition);
+    private RewriteRelation toGenericTransformer(ConstrainedRewriteRelation constrainedRelation) {
+        JavaKilTermContainer finalTermContainer = new JavaKilTermContainer(
+                context, constrainedRelation.getFinalTerm().term());
+        /* Process Graph if Present */
+        if (constrainedRelation.getConstrainedExecutionGraph().isPresent()) {
+            ConstrainedExecutionGraph constrainedGraph = constrainedRelation.getConstrainedExecutionGraph().get();
+            KRunGraph executionGraph = new KRunGraph();
+            for (JavaTransition javaTransition : constrainedGraph.getEdges()) {
+                /* Process Transition */
+                Transition genericTransition = transitionTransformer(javaTransition);
             }
         }
-        return null;
     }
 
-    private RewriteRelation graphStep(org.kframework.kil.Term cfg, int steps, boolean computeGraph)
+    @Override
+    public RewriteRelation step(org.kframework.kil.Term cfg, int steps, boolean computeGraph)
             throws KRunExecutionException {
         ConstrainedRewriteRelation resultRelation = javaTraceRun(cfg, steps, computeGraph);
         /* Process Result Relation i.e convert to generic relation by adding wrapper classes */
-        RewriteRelation returnResult = new RewriteRelation();
-        return null;
+        RewriteRelation finalResult = toGenericTransformer(resultRelation);
     }
+
+
 }

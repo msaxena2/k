@@ -14,6 +14,7 @@ import org.kframework.kil.Sort;
 import org.kframework.kil.Term;
 import org.kframework.kil.Variable;
 import org.kframework.kil.loader.Context;
+import org.kframework.krun.api.RewriteRelation;
 import org.kframework.utils.errorsystem.ParseFailedException;
 import org.kframework.krun.KRunExecutionException;
 import org.kframework.krun.KRunOptions;
@@ -75,6 +76,23 @@ public interface Executor {
     rewrites are possible)
     */
     public abstract KRunState step(Term cfg, int steps) throws KRunExecutionException;
+
+
+    /**
+     Execute a term in normal-execution mode for a specified number of steps
+     @param cfg The K term to rewrite
+     @param steps The maximum number of transitions to execute for (zero if you want to rewrite
+     only until the first transition)
+     @param computeGraph If true, the graph containing the trace of execution is calculated.
+     @exception KRunExecutionException Thrown if the backend fails to successfully execute the
+     term
+     @exception UnsupportedOperationException The backend implementing this interface does not
+     support bounded stepping
+     @return An object containing both metadata about krun's execution, and information about
+     the resulting term after executing the specified number of steps (or fewer if no further
+     rewrites are possible)
+     */
+    public abstract RewriteRelation step(Term cfg, int steps, boolean computeGraph) throws KRunExecutionException;
 
     public static class Tool implements Transformation<Void, KRunResult> {
 

@@ -24,7 +24,7 @@ public class JavaKilRuleContainer extends KilRuleContainer{
 
     /**
      * Lazily evaluates the Generic Kil Rule from java backend rule.
-     * @return Rule: Generic kil rule
+     * @return Rule: Generic kil rule.
      */
     @Override
     public Rule getKilTerm() {

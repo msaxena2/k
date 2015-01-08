@@ -16,9 +16,9 @@ public class ConstrainedRewriteRelation {
     public ConstrainedRewriteRelation() {
     }
 
-    public ConstrainedRewriteRelation(ConstrainedTerm finalTerm, Optional<ConstrainedExecutionGraph> constrainedExecutionGraph) {
+    public ConstrainedRewriteRelation(ConstrainedTerm finalTerm, ConstrainedExecutionGraph constrainedExecutionGraph) {
         this.finalTerm = finalTerm;
-        this.constrainedExecutionGraph = constrainedExecutionGraph;
+        this.constrainedExecutionGraph = Optional.ofNullable(constrainedExecutionGraph);
     }
 
 
@@ -35,6 +35,6 @@ public class ConstrainedRewriteRelation {
     }
 
     public void setConstrainedExecutionGraph(ConstrainedExecutionGraph constrainedExecutionGraph) {
-        this.constrainedExecutionGraph = Optional.of(constrainedExecutionGraph);
+        this.constrainedExecutionGraph = Optional.ofNullable(constrainedExecutionGraph);
     }
 }

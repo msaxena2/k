@@ -556,12 +556,12 @@ public class SymbolicRewriter {
                 constrainedTerm = result;
 
             } else {
-                returnRelation.setFinalTerm(result);
-                returnRelation.setConstrainedExecutionGraph(executionGraph);
+                break;
             }
         }
+        returnRelation.setFinalTerm(constrainedTerm);
+        returnRelation.setConstrainedExecutionGraph(executionGraph);
         return returnRelation;
-
     }
 
 }
