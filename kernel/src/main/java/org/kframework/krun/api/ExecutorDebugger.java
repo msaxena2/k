@@ -135,7 +135,7 @@ public class ExecutorDebugger implements Debugger {
                     + "first select a solution with the select command before executing steps of rewrites!");
         }
         for (int i = 0; steps == null || i < steps; i++) {
-            KRunState nextStep = executor.step(getState(currentState).getKilResult(), 1);
+            KRunState nextStep = executor.step(getState(currentState).getRawResult(), 1);
             Entry<Integer, KRunState> prevValue = containsValue(nextStep);
             if (prevValue!=null) {
                 nextStep = prevValue.getValue();
@@ -172,7 +172,7 @@ public class ExecutorDebugger implements Debugger {
                     + "If you previously used the search command you must"
                     + "first select a solution with the select command before executing steps of rewrites!");
         }
-        SearchResults results = executor.search(null, steps, SearchType.PLUS, defaultPattern, getState(currentState).getKilResult(), defaultPatternInfo);
+        SearchResults results = executor.search(null, steps, SearchType.PLUS, defaultPattern, getState(currentState).getRawResult(), defaultPatternInfo);
         mergeSearchGraph(results.getGraph());
         currentState = null;
         return results;
@@ -216,7 +216,7 @@ public class ExecutorDebugger implements Debugger {
      */
     private Entry<Integer, KRunState> containsValue(KRunState state){
         for (Entry<Integer,KRunState> e : states.entrySet() ){
-            if(SemanticEqual.checkEquality(state.getKilResult(), e.getValue().getKilResult()))
+            if(SemanticEqual.checkEquality(state.getRawResult(), e.getValue().getRawResult()))
                 return e ;
         }
         return null;
@@ -242,7 +242,7 @@ public class ExecutorDebugger implements Debugger {
                     + "If you previously used the search command you must"
                     + "first select a solution with the select command before reading from stdin!");
         }
-        Term configuration = getState(currentState).getKilResult();
+        Term configuration = getState(currentState).getRawResult();
         AppendToStdin transformer = new AppendToStdin(s, context);
         Term result;
         result = (Term) transformer.visitNode(configuration);

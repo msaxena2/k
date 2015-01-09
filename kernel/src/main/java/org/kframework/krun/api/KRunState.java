@@ -33,7 +33,7 @@ public class KRunState implements Serializable, Comparable<KRunState>, KRunResul
         this.stateId = counter.nextState++;
     }
 
-    public Term getKilResult() {
+    public Term getRawResult() {
         return rawResult.getKilTerm();
     }
 
