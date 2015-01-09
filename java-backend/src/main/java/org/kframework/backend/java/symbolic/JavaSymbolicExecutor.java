@@ -4,7 +4,6 @@ package org.kframework.backend.java.symbolic;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -157,7 +156,7 @@ public class JavaSymbolicExecutor implements Executor {
         return patternMatchRewriter.get();
     }
 
-    private ConstrainedRewriteRelation javaTraceRun(org.kframework.kil.Term cfg, int steps, boolean computeGraph)
+    private ConstrainedRewriteRelation internalRun(org.kframework.kil.Term cfg, int steps, boolean computeGraph)
             throws KRunExecutionException {
         Term term = kilTransformer.transformAndEval(cfg);
         TermContext termContext = TermContext.of(globalContext);
@@ -222,7 +221,7 @@ public class JavaSymbolicExecutor implements Executor {
     @Override
     public RewriteRelation step(org.kframework.kil.Term cfg, int steps, boolean computeGraph)
             throws KRunExecutionException {
-        ConstrainedRewriteRelation resultRelation = javaTraceRun(cfg, steps, computeGraph);
+        ConstrainedRewriteRelation resultRelation = internalRun(cfg, steps, computeGraph);
         /* Process Result Relation i.e convert to generic relation by adding wrapper classes */
         RewriteRelation finalResult = toGenericTransformer(resultRelation);
         return finalResult;
