@@ -158,7 +158,7 @@ public interface Executor {
                 result = executor.step(initialConfiguration.get(), options.depth, false).getFinalState();
                 sw.printIntermediate("Bounded execution total");
             } else {
-                result = executor.run(initialConfiguration.get(), falsem).getFinalState();
+                result = executor.run(initialConfiguration.get(), false).getFinalState();
                 sw.printIntermediate("Normal execution total");
             }
             ASTNode pattern = pattern();
