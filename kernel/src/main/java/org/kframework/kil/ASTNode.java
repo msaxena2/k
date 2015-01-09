@@ -19,7 +19,6 @@ import com.google.inject.name.Names;
 /**
  * Base class for K AST. Useful for Visitors and Transformers.
  */
-
 public abstract class ASTNode implements Serializable {
     /**
      *
