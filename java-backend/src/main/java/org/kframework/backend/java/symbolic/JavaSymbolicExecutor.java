@@ -227,5 +227,5 @@ public class JavaSymbolicExecutor implements Executor {
         RewriteRelation finalResult = toGenericTransformer(resultRelation);
         return finalResult;
     }
-    
+
 }

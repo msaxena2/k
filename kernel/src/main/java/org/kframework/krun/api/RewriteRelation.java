@@ -10,7 +10,7 @@ import java.util.Optional;
  * Contains the step/search graph if the compute graph option is specified.
  */
 public class RewriteRelation {
-    public KRunState finalState;
+    private KRunState finalState;
 
     Optional<KRunGraph> executionGraph;
 
