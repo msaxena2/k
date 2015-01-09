@@ -68,26 +68,42 @@ public class SymbolicRewriter {
         this.strategy = new TransitionCompositeStrategy(kompileOptions.transition);
     }
 
-    public ConstrainedTerm rewrite(ConstrainedTerm constrainedTerm, int bound) {
+    public ConstrainedRewriteRelation traceRewrite(ConstrainedTerm constrainedTerm, int bound, boolean computeGraph) {
         stopwatch.start();
+
+        ConstrainedRewriteRelation returnRelation = new ConstrainedRewriteRelation();
+        ConstrainedExecutionGraph executionGraph = null;
+        if(computeGraph) {
+            executionGraph = new ConstrainedExecutionGraph();
+        }
 
         for (step = 0; step != bound; ++step) {
             /* get the first solution */
             computeRewriteStep(constrainedTerm, 1);
             ConstrainedTerm result = getTransition(0);
             if (result != null) {
+                if(computeGraph) {
+                    /* add original term */
+                    executionGraph.addVertex(constrainedTerm);
+                    /* add new term */
+                    executionGraph.addVertex(result);
+                    /* add Transition between the two terms */
+                    executionGraph.addEdge(new JavaTransition(getSubstitution(0), getRule(0)), constrainedTerm, result);
+                }
                 constrainedTerm = result;
+
             } else {
                 break;
             }
         }
-
+        returnRelation.setFinalTerm(constrainedTerm);
+        returnRelation.setConstrainedExecutionGraph(executionGraph);
         stopwatch.stop();
         if (definition.context().krunOptions.experimental.statistics) {
             System.err.println("[" + step + ", " + stopwatch + "]");
         }
 
-        return constrainedTerm;
+        return returnRelation;
     }
 
     /**
@@ -532,36 +548,5 @@ public class SymbolicRewriter {
         return proofResults;
     }
 
-    public ConstrainedRewriteRelation traceRewrite(ConstrainedTerm constrainedTerm, int bound, boolean computeGraph) {
-
-        ConstrainedRewriteRelation returnRelation = new ConstrainedRewriteRelation();
-        ConstrainedExecutionGraph executionGraph = null;
-        if(computeGraph) {
-            executionGraph = new ConstrainedExecutionGraph();
-        }
-
-        for (step = 0; step != bound; ++step) {
-            /* get the first solution */
-            computeRewriteStep(constrainedTerm, 1);
-            ConstrainedTerm result = getTransition(0);
-            if (result != null) {
-                if(computeGraph) {
-                    /* add original term */
-                    executionGraph.addVertex(constrainedTerm);
-                    /* add new term */
-                    executionGraph.addVertex(result);
-                    /* add Transition between the two terms */
-                    executionGraph.addEdge(new JavaTransition(getSubstitution(0), getRule(0)), constrainedTerm, result);
-                }
-                constrainedTerm = result;
-
-            } else {
-                break;
-            }
-        }
-        returnRelation.setFinalTerm(constrainedTerm);
-        returnRelation.setConstrainedExecutionGraph(executionGraph);
-        return returnRelation;
-    }
 
 }
