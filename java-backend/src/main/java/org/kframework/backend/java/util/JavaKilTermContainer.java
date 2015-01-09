@@ -1,4 +1,5 @@
-// Copyright (c) 2014-2015 K Team. All Rights Reserved.
+// Copyright (c) 2014 K Team. All Rights Reserved.
+
 package org.kframework.backend.java.util;
 
 import org.kframework.backend.java.symbolic.BackendJavaKILtoKILTransformer;
@@ -10,7 +11,7 @@ import org.kframework.krun.api.KilTermContainer;
  * The java backend specific class for the lazy evaluating container.
  * Implements the converter that lazily converts the backend kilTerm to the generic term.
  */
-public class JavaKilTermContainer extends KilTermContainer {
+public class gJavaKilTermContainer extends KilTermContainer {
 
     private org.kframework.backend.java.kil.Term javaTerm;
 
