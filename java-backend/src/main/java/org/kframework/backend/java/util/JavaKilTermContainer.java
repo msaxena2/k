@@ -11,7 +11,7 @@ import org.kframework.krun.api.KilTermContainer;
  * The java backend specific class for the lazy evaluating container.
  * Implements the converter that lazily converts the backend kilTerm to the generic term.
  */
-public class gJavaKilTermContainer extends KilTermContainer {
+public class JavaKilTermContainer extends KilTermContainer {
 
     private org.kframework.backend.java.kil.Term javaTerm;
 
