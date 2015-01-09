@@ -39,6 +39,7 @@ import org.kframework.krun.api.Transition;
 import org.kframework.krun.tools.Executor;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import org.kframework.utils.errorsystem.KExceptionManager;
 
 public class JavaSymbolicExecutor implements Executor {
 
@@ -160,14 +161,13 @@ public class JavaSymbolicExecutor implements Executor {
             throws KRunExecutionException {
         Term term = kilTransformer.transformAndEval(cfg);
         TermContext termContext = TermContext.of(globalContext);
-        ConstrainedRewriteRelation resultRelation;
+        ConstrainedRewriteRelation resultRelation = null;
         if (javaOptions.patternMatching) {
             if (computeGraph) {
-                throw new KRunExecutionException("Sorry! Compute Graph not yet implemented with pattern matching.");
+                KExceptionManager.criticalError("Sorry!, debugger not implemented with pattern matching yet");
             } else {
-                //implement this
-                return null;
-
+                ConstrainedTerm rewriteResult = new ConstrainedTerm(getPatternMatchRewriter().rewrite(term, steps, termContext), termContext);
+                resultRelation = new ConstrainedRewriteRelation(rewriteResult, null);
             }
         } else {
             SymbolicConstraint constraint = new SymbolicConstraint(termContext);
