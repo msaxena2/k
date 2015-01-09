@@ -27,6 +27,7 @@ import org.kframework.compile.utils.RuleCompilerSteps;
 import org.kframework.kil.loader.Context;
 import org.kframework.krun.KRunExecutionException;
 import org.kframework.krun.SubstitutionFilter;
+import org.kframework.krun.api.GenericKilTermContainer;
 import org.kframework.krun.api.KRunGraph;
 import org.kframework.krun.api.KRunState;
 import org.kframework.krun.api.KilTermContainer;
@@ -133,9 +134,9 @@ public class JavaSymbolicExecutor implements Executor {
                     (org.kframework.kil.Term) new SubstitutionFilter(substitutionMap, context)
                             .visitNode(pattern.getBody());
 
-            KRunState searchState = new KRunState( )
+            KRunState searchState = new KRunState(new GenericKilTermContainer(context, rawResult), counter);
             searchResults.add(new SearchResult(
-                    new KRunState(new JavaKilTermContainer(context, rawResult), counter),
+                    searchState,
                     substitutionMap,
                     compilationInfo));
         }
@@ -226,6 +227,5 @@ public class JavaSymbolicExecutor implements Executor {
         RewriteRelation finalResult = toGenericTransformer(resultRelation);
         return finalResult;
     }
-
-
+    
 }
