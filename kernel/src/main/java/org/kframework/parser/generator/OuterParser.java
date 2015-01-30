@@ -92,7 +92,7 @@ public class OuterParser {
 
             if (globalOptions.verbose)
                 System.out.println("Including file: " + file.getAbsolutePath());
-            List<DefinitionItem> defItemList = Outer.parse(Sources.fromFile(file), FileUtils.readFileToString(file), context);
+            List<DefinitionItem> defItemList = Outer.parse(Sources.fromFile(file.getAbsoluteFile()), FileUtils.readFileToString(file), context);
 
             // go through every required file
             for (ASTNode di : defItemList) {
