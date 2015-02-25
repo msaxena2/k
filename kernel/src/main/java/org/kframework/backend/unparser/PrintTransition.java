@@ -99,9 +99,11 @@ public class PrintTransition implements Transformation<Transition, String> {
                 if (ruleItem != null) {
                     sb.append(unparser.print(ruleItem));
                 }
-                sb.append("\n" + "Substitution:");
-                Map<String, Term> substMap = getStringMap(trans.getSubstitution());
-                substPrinter.run(substMap, a);
+                if (trans.getSubstitution() != null) {
+                    sb.append("\n" + "Substitution:");
+                    Map<String, Term> substMap = getStringMap(trans.getSubstitution());
+                    substPrinter.run(substMap, a);
+                }
             } else {
                 sb.append(" [Node ");
                 sb.append(graph.getSource(trans).getStateId());
