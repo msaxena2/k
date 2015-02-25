@@ -53,13 +53,13 @@ public interface Executor {
     public abstract RewriteRelation run(Term cfg, boolean computeGraph) throws KRunExecutionException;
 
     /**
-     Execute a term in normal execution mode until it cannot rewrite any further
-     @param initialState The KRunState containing the backend specific term to rewrite
-     @param computeGraph Specified as true if the graph of execution needs to be calculated.
-     @return An object containing both metadata about krun's execution, information about
-     the exit state of the execution, and the graph if computeGraph was true.
-     @exception KRunExecutionException Thrown if the backend fails to successfully execute the
-     term
+    Execute a term in normal execution mode until it cannot rewrite any further
+    @param initialState The KRunState containing the backend specific term to rewrite
+    @param computeGraph Specified as true if the graph of execution needs to be calculated.
+    @return An object containing both metadata about krun's execution, information about
+    the exit state of the execution, and the graph if computeGraph was true.
+    @exception KRunExecutionException Thrown if the backend fails to successfully execute the
+    term
      */
     public abstract RewriteRelation run(KRunState initialState, boolean computeGraph) throws KRunExecutionException;
 

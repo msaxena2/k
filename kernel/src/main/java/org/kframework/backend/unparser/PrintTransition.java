@@ -12,6 +12,8 @@ import org.kframework.kil.Module;
 import org.kframework.kil.ModuleItem;
 import org.kframework.kil.Source;
 import org.kframework.kil.StringBuiltin;
+import org.kframework.kil.Term;
+import org.kframework.kil.Variable;
 import org.kframework.kil.loader.Context;
 import org.kframework.krun.api.KRunGraph;
 import org.kframework.krun.api.KRunState;
@@ -27,6 +29,7 @@ public class PrintTransition implements Transformation<Transition, String> {
 
     @InjectGeneric private Transformation<ASTNode, String> astNodePrinter;
     @InjectGeneric private Transformation<KRunState, String> statePrinter;
+    @InjectGeneric private Transformation<Map<String, Term>, String> substPrinter;
     private Definition definition;
     private Map<Pair<Source, Location>, ModuleItem> ruleStore;
     private Unparser unparser;
@@ -56,6 +59,14 @@ public class PrintTransition implements Transformation<Transition, String> {
                 }
             });
         });
+    }
+
+    private Map<String, Term> getStringMap(Map<Variable, Term> subst) {
+        Map<String, Term> stringSubst = new HashMap<>();
+        for (Variable key : subst.keySet()) {
+            stringSubst.put(key.toString(), subst.get(key));
+        }
+        return stringSubst;
     }
 
     public static final String PRINT_VERBOSE_GRAPH = "printVerboseGraph";
@@ -88,6 +99,9 @@ public class PrintTransition implements Transformation<Transition, String> {
                 if (ruleItem != null) {
                     sb.append(unparser.print(ruleItem));
                 }
+                sb.append("\n" + "Substitution:");
+                Map<String, Term> substMap = getStringMap(trans.getSubstitution());
+                substPrinter.run(substMap, a);
             } else {
                 sb.append(" [Node ");
                 sb.append(graph.getSource(trans).getStateId());
