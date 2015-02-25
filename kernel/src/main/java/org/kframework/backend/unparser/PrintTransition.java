@@ -101,8 +101,9 @@ public class PrintTransition implements Transformation<Transition, String> {
                 }
                 if (trans.getSubstitution() != null) {
                     sb.append("\n" + "Substitution:");
+                    a.add(Boolean.class, PrintSearchResult.IS_DEFAULT_PATTERN, false);
                     Map<String, Term> substMap = getStringMap(trans.getSubstitution());
-                    substPrinter.run(substMap, a);
+                    sb.append(substPrinter.run(substMap, a));
                 }
             } else {
                 sb.append(" [Node ");
