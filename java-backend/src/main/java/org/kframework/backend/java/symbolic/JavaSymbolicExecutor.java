@@ -101,16 +101,20 @@ public class JavaSymbolicExecutor implements Executor {
             return patternMatcherRewriteRun(cfg, bound, computeGraph);
         }
 
+        return getRewriteRelation(getConstrainedTerm(cfg), bound, computeGraph);
+    }
+
+    private RewriteRelation getRewriteRelation(ConstrainedTerm cfg, int bound, boolean computeGraph) {
         SymbolicRewriter rewriter = symbolicRewriter.get();
         KRunState finalState = rewriter.rewrite(
-                getConstrainedTerm(cfg),
+                cfg,
                 bound,
                 computeGraph);
         return new RewriteRelation(finalState, rewriter.getExecutionGraph());
     }
 
     private RewriteRelation javaRewriteEngineRun(JavaKRunState initialState, int bound, boolean computeGraph) {
-        SymbolicRewriter rewriter = symbolicRewriter.get();
+        return getRewriteRelation(init)SymbolicRewriter rewriter = symbolicRewriter.get();
         KRunState finalState = rewriter.rewrite(
                 initialState.getConstrainedTerm(),
                 bound,

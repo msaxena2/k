@@ -17,6 +17,7 @@ import org.kframework.kil.Variable;
 import org.kframework.kil.loader.Context;
 import org.kframework.krun.api.KRunGraph;
 import org.kframework.krun.api.KRunState;
+import org.kframework.krun.api.SearchResult;
 import org.kframework.krun.api.Transition;
 import org.kframework.krun.api.Transition.TransitionType;
 import org.kframework.transformation.Transformation;
@@ -29,7 +30,7 @@ public class PrintTransition implements Transformation<Transition, String> {
 
     @InjectGeneric private Transformation<ASTNode, String> astNodePrinter;
     @InjectGeneric private Transformation<KRunState, String> statePrinter;
-    @InjectGeneric private Transformation<Map<String, Term>, String> substPrinter;
+    @InjectGeneric private Transformation<SearchResult, String> substPrinter;
     private Definition definition;
     private Map<Pair<Source, Location>, ModuleItem> ruleStore;
     private Unparser unparser;
@@ -103,7 +104,7 @@ public class PrintTransition implements Transformation<Transition, String> {
                     sb.append("\n" + "Substitution:");
                     a.add(Boolean.class, PrintSearchResult.IS_DEFAULT_PATTERN, false);
                     Map<String, Term> substMap = getStringMap(trans.getSubstitution());
-                    sb.append(substPrinter.run(substMap, a));
+                    sb.append(substPrinter.run(new SearchResult(), a));
                 }
             } else {
                 sb.append(" [Node ");
