@@ -95,7 +95,10 @@ public class ConstrainedTerm extends JavaSymbolicObject {
     public ConstrainedTerm expandPatterns(boolean narrowing) {
         ConstrainedTerm result = this;
         while (true) {
-            PatternExpander patternExpander = new PatternExpander(result.constraint(), narrowing);
+            PatternExpander patternExpander = new PatternExpander(
+                    result.constraint(),
+                    narrowing,
+                    context);
             ConstrainedTerm expandedTerm = (ConstrainedTerm) result.accept(patternExpander);
             if (expandedTerm == result) {
                 break;
@@ -230,9 +233,14 @@ public class ConstrainedTerm extends JavaSymbolicObject {
 
     @Override
     public int hashCode() {
-        hashCode = 1;
-        hashCode = hashCode * Utils.HASH_PRIME + data.hashCode();
-        return hashCode;
+        int h = hashCode;
+        if (h == Utils.NO_HASHCODE) {
+            h = 1;
+            h = h * Utils.HASH_PRIME + data.hashCode();
+            h = h == 0 ? 1 : h;
+            hashCode = h;
+        }
+        return h;
     }
 
     @Override

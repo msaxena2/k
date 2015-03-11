@@ -1,6 +1,7 @@
 // Copyright (c) 2013-2015 K Team. All Rights Reserved.
 package org.kframework.backend.java.kil;
 
+import org.kframework.attributes.Att;
 import org.kframework.backend.java.indexing.IndexingPair;
 import org.kframework.backend.java.symbolic.BottomUpVisitor;
 import org.kframework.backend.java.symbolic.CopyOnShareSubstAndEvalTransformer;
@@ -25,7 +26,8 @@ import java.util.Set;
  *
  * @author AndreiS
  */
-public abstract class Term extends JavaSymbolicObject implements Transformable, Matchable, Unifiable, Comparable<Term> {
+public abstract class Term extends JavaSymbolicObject implements Transformable, Matchable, Unifiable, Comparable<Term>,
+        org.kframework.kore.K {
 
     protected final Kind kind;
     // protected final boolean normalized;
@@ -225,11 +227,13 @@ public abstract class Term extends JavaSymbolicObject implements Transformable, 
      */
     @Override
     public final int hashCode() {
-        if (hashCode == Utils.NO_HASHCODE) {
-            hashCode = computeHash();
-            hashCode = hashCode == 0 ? 1 : hashCode;
+        int h = hashCode;
+        if (h == Utils.NO_HASHCODE) {
+            h = computeHash();
+            h = h == 0 ? 1 : h;
+            hashCode = h;
         }
-        return hashCode;
+        return h;
     }
 
     /**
@@ -240,4 +244,8 @@ public abstract class Term extends JavaSymbolicObject implements Transformable, 
 
     @Override
     public abstract boolean equals(Object object);
+
+    public Att att() {
+        return Att.apply();
+    }
 }

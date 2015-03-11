@@ -53,7 +53,7 @@ import com.google.inject.Provider;
  * @author AndreiS
  */
 @SuppressWarnings("serial")
-public class KItem extends Term {
+public class KItem extends Term implements KItemRepresentation {
 
     private final Term kLabel;
     private final Term kList;
@@ -77,18 +77,11 @@ public class KItem extends Term {
          * following conversion is necessary */
         kList = KCollection.upKind(kList, Kind.KLIST);
 
-        if (kLabel instanceof KLabelConstant) {
-            KLabelConstant kLabelConstant = (KLabelConstant) kLabel;
-            if (kLabelConstant.isListLabel()) {
-                return kLabelConstant.getListTerminator(termContext.definition().context());
-            }
-        }
-
         // TODO(yilongli): break the dependency on the Tool object
         return new KItem(kLabel, kList, termContext, termContext.global().kItemOps.tool, source, location);
     }
 
-    KItem(Term kLabel, Term kList, Sort sort, boolean isExactSort) {
+    public KItem(Term kLabel, Term kList, Sort sort, boolean isExactSort) {
         this(kLabel, kList, sort, isExactSort, Collections.singleton(sort));
     }
 
@@ -132,7 +125,7 @@ public class KItem extends Term {
                     && definition.sortPredicateRulesOn(kLabelConstant).isEmpty();
             if (enableCache) {
                 cacheTabColKey = new CacheTableColKey(kLabelConstant, (KList) kList);
-                cacheTabVal = definition.getSortCacheTable().get(cacheTabColKey);
+                cacheTabVal = definition.getSortCacheValue(cacheTabColKey);
                 if (cacheTabVal != null) {
                     sort = cacheTabVal.sort;
                     isExactSort = cacheTabVal.isExactSort;
@@ -189,17 +182,17 @@ public class KItem extends Term {
             if (MetaK.matchable(kList, rule.sortPredicateArgument().kList(), termContext)
                     .equals(BoolToken.TRUE)) {
                 sorts.add(rule.predicateSort());
-            } else if (MetaK.unifiable(kList, rule.sortPredicateArgument().kList(), termContext)
-                    .equals(BoolToken.TRUE)) {
+            } else if (BoolToken.TRUE.equals(MetaK.unifiable(
+                    kList, rule.sortPredicateArgument().kList(), termContext))) {
                 possibleSorts.add(rule.predicateSort());
             }
         }
 
-        for (Production production : kLabelConstant.productions()) {
+        for (SortSignature signature : kLabelConstant.signatures()) {
             boolean mustMatch = true;
             boolean mayMatch = true;
 
-            if (kList.concreteSize() == production.getArity()) {
+            if (kList.concreteSize() == signature.parameters().size()) {
                 /* check if the production can match this KItem */
                 int idx = 0;
                 for (Term term : kList) {
@@ -208,7 +201,7 @@ public class KItem extends Term {
                     }
 
                     Sort childSort = term.sort();
-                    if (!definition.context().isSubsortedEq(production.getChildSort(idx), childSort.toFrontEnd())) {
+                    if (!definition.subsorts().isSubsortedEq(signature.parameters().get(idx), childSort)) {
                         mustMatch = false;
                         /*
                          * YilongL: the following analysis can be made more
@@ -217,7 +210,7 @@ public class KItem extends Term {
                          * compute for our purpose
                          */
                         mayMatch = !term.isExactSort()
-                                && definition.context().hasCommonSubsort(production.getChildSort(idx), childSort.toFrontEnd());
+                                && definition.subsorts().hasCommonSubsort(signature.parameters().get(idx), childSort);
                     }
                     idx++;
                 }
@@ -226,9 +219,9 @@ public class KItem extends Term {
             }
 
             if (mustMatch) {
-                sorts.add(Sort.of(production.getSort()));
+                sorts.add(signature.result());
             } else if (mayMatch) {
-                possibleSorts.add(Sort.of(production.getSort()));
+                possibleSorts.add(signature.result());
             }
         }
 
@@ -243,7 +236,9 @@ public class KItem extends Term {
         Sort sort = sorts.isEmpty() ? kind.asSort() : subsorts.getGLBSort(sorts);
         if (sort == null) {
             throw KExceptionManager.criticalError("Cannot compute least sort of term: " +
-                            this.toString() + "\nPossible least sorts are: " + sorts);
+                            this.toString() + "\nPossible least sorts are: " + sorts +
+                            "\nAll terms must have a unique least sort; " +
+                            "consider assigning unique KLabels to overloaded productions", this);
         }
         /* the sort is exact iff the klabel is a constructor and there is no other possible sort */
         boolean isExactSort = kLabelConstant.isConstructor() && possibleSorts.isEmpty();
@@ -256,7 +251,7 @@ public class KItem extends Term {
         CacheTableValue cacheTabVal = new CacheTableValue(sort, isExactSort, possibleSorts);
 
         if (enableCache) {
-            definition.getSortCacheTable().put(new CacheTableColKey(kLabelConstant, (KList) kList), cacheTabVal);
+            definition.putSortCacheValue(new CacheTableColKey(kLabelConstant, (KList) kList), cacheTabVal);
         }
     }
 
@@ -270,6 +265,11 @@ public class KItem extends Term {
 
     public Term resolveFunctionAndAnywhere(boolean copyOnShareSubstAndEval, TermContext context) {
         return context.global().kItemOps.resolveFunctionAndAnywhere(this, copyOnShareSubstAndEval, context);
+    }
+
+    @Override
+    public Term toKore() {
+        return this;
     }
 
     public static class KItemOperations {
@@ -594,10 +594,12 @@ public class KItem extends Term {
         return this;
     }
 
+    @Override
     public Term kLabel() {
         return kLabel;
     }
 
+    @Override
     public Term kList() {
         return kList;
     }
@@ -685,15 +687,13 @@ public class KItem extends Term {
 
     public List<Term> getPatternInput() {
         assert kLabel instanceof KLabelConstant && ((KLabelConstant) kLabel).isPattern() && kList instanceof KList;
-        int inputCount = Integer.parseInt(
-                ((KLabelConstant) kLabel).productions().get(0).getAttribute(Attribute.PATTERN_KEY));
+        int inputCount = Integer.parseInt(((KLabelConstant) kLabel).getAttr(Attribute.PATTERN_KEY));
         return ((KList) kList).getContents().subList(0, inputCount);
     }
 
     public List<Term> getPatternOutput() {
         assert kLabel instanceof KLabelConstant && ((KLabelConstant) kLabel).isPattern() && kList instanceof KList;
-        int inputCount = Integer.parseInt(
-                ((KLabelConstant) kLabel).productions().get(0).getAttribute(Attribute.PATTERN_KEY));
+        int inputCount = Integer.parseInt(((KLabelConstant) kLabel).getAttr(Attribute.PATTERN_KEY));
         return ((KList) kList).getContents().subList(inputCount, ((KList) kList).getContents().size());
     }
 
