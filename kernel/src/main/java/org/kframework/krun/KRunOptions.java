@@ -268,6 +268,9 @@ public final class KRunOptions {
                 converter=OnOffConverter.class)
         public boolean statistics = false;
 
+        @Parameter(names="--kore", description="Execute with the new pipeline.")
+        public boolean kore = false;
+
         @Parameter(names="--debugger", description="Run an execution in debug mode.")
         private boolean debugger = false;
 
@@ -302,8 +305,5 @@ public final class KRunOptions {
 
         @Parameter(names="--coverage-file", description="Record a trace of locations of all rules and terms applied.")
         public File coverage = null;
-
-        @Parameter(names="--kore", description="Execute with the new pipeline.")
-        public boolean kore = false;
     }
 }
