@@ -2,19 +2,19 @@
 
 // Module defining only the sorts K and KString, useful for modularity
 module SORT-K
-  syntax K [hook(org.kframework.kore.K)]
+  syntax K [hook(K.K)]
 endmodule
 
 module BASIC-K
   imports SORT-K
   syntax KLabel
-  syntax KItem [hook(org.kframework.kore.KItem)]
+  syntax KItem [hook(K.KItem)]
   syntax K     ::= KItem
   syntax KConfigVar
 endmodule
 
 module KSTRING
-  syntax KString ::= r"[\\\"](([^\\\"\n\r\\\\])|([\\\\][nrtf\\\"\\\\])|([\\\\][x][0-9a-fa-f]{2})|([\\\\][u][0-9a-fa-f]{4})|([\\\\][u][0-9a-fa-f]{8}))*[\\\"]"      [token, hook(org.kframework.kore.KString)]
+  syntax KString ::= r"[\\\"](([^\\\"\n\r\\\\])|([\\\\][nrtf\\\"\\\\])|([\\\\][x][0-9a-fA-F]{2})|([\\\\][u][0-9a-fA-F]{4})|([\\\\][U][0-9a-fA-F]{8}))*[\\\"]"      [token, hook(org.kframework.kore.KString)]
   // optionally qualified strings, like in Scala "abc", i"abc", r"a*bc", etc.
 endmodule
 
@@ -74,6 +74,7 @@ endmodule
 
 module RULE-CELLS
   imports KCELLS
+  imports RULE-LISTS
   // if this module is imported, the parser automatically
   // generates, for all productions that have the attribute 'cell' or 'maincell',
   // a production like below:
@@ -85,8 +86,12 @@ endmodule
 
 module CONFIG-CELLS
   imports KCELLS
+  imports RULE-LISTS
   syntax #CellName ::= r"[a-zA-Z0-9\\-]+"  [token]
+
   syntax Cell ::= "<" #CellName #CellProperties ">" K "</" #CellName ">" [klabel(#configCell)]
+  syntax Cell ::= "<" #CellName "/>" [klabel(#externalCell)]
+
   syntax #CellProperties ::= #CellProperty #CellProperties [klabel(#cellPropertyList)]
                            | ""                            [klabel(#cellPropertyListTerminator)]
   syntax #CellProperty ::= #CellName "=" KString           [klabel(#cellProperty)]
@@ -160,6 +165,13 @@ module PROGRAM-LISTS
   //         | E Es#Terminator [klabel('_,_)]
   // Es ::= Ne#Es
   //      | Es#Terminator      // if the list is *
+endmodule
+
+module RULE-LISTS
+  // if this module is imported, the parser automatically
+  // adds the subsort production to the parsing module only:
+  // Es ::= E        [userList("*")]
+
 endmodule
 
 module DEFAULT-CONFIGURATION
