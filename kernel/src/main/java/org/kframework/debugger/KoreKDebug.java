@@ -86,6 +86,7 @@ public class KoreKDebug implements KDebug {
         return result.rewriteSteps().isPresent() && result.rewriteSteps().get() < steps;
     }
 
+    
     @Override
     public DebuggerState backStep(int initialStateNum, int steps) {
         DebuggerState currentState = stateList.get(initialStateNum);
