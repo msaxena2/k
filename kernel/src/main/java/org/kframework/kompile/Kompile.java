@@ -58,6 +58,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -336,7 +337,7 @@ public class Kompile {
                 stream((Set<Sentence>) module.localSentences().$bar(ruleSet).$bar(contextSet)).filter(b -> !(b instanceof Bubble)).collect(Collections.toSet()), module.att());
     }
 
-    public Rule compileRule(CompiledDefinition compiledDef, String contents, Source source) {
+    public Rule parseRule(CompiledDefinition compiledDef, String contents, Source source) {
         errors = java.util.Collections.synchronizedSet(Sets.newHashSet());
         gen = new RuleGrammarGenerator(compiledDef.kompiledDefinition, kompileOptions.strict());
         java.util.Set<K> res = performParse(new HashMap<>(), gen.getCombinedGrammar(gen.getRuleGrammar(compiledDef.executionModule())),
@@ -345,7 +346,11 @@ public class Kompile {
         if (!errors.isEmpty()) {
             throw errors.iterator().next();
         }
-        Rule parsed = upRule(res.iterator().next());
+        return upRule(res.iterator().next());
+    }
+
+    public Rule compileRule(CompiledDefinition compiledDef, String contents, Source source, Optional<Rule> parsedRule) {
+        Rule parsed = parsedRule.orElse(parseRule(compiledDef, contents, source));
         return (Rule) func(new ResolveAnonVar()::resolve)
                 .andThen(func(new ResolveSemanticCasts()::resolve))
                 .andThen(func(s -> concretizeSentence(s, compiledDef.kompiledDefinition)))
@@ -403,7 +408,7 @@ public class Kompile {
         int startLine = b.att().<Integer>get("contentStartLine").get();
         int startColumn = b.att().<Integer>get("contentStartColumn").get();
         String source = b.att().<String>get("Source").get();
-        Tuple2<Either<java.util.Set<ParseFailedException>, Term>, java.util.Set<ParseFailedException>> result;
+        Tuple2<Either<java.util.Set<ParseFailedException>, K>, java.util.Set<ParseFailedException>> result;
         if (cache.containsKey(b.contents())) {
             ParsedSentence parse = cache.get(b.contents());
             cachedBubbles.getAndIncrement();
@@ -414,7 +419,7 @@ public class Kompile {
             parsedBubbles.getAndIncrement();
             kem.addAllKException(result._2().stream().map(e -> e.getKException()).collect(Collectors.toList()));
             if (result._1().isRight()) {
-                KApply k = (KApply)TreeNodesToKORE.down(TreeNodesToKORE.apply(result._1().right().get()));
+                KApply k = (KApply)TreeNodesToKORE.down(result._1().right().get());
                 k = KApply(k.klabel(), k.klist(), k.att().addAll(b.att().remove("contentStartLine").remove("contentStartColumn").remove("Source").remove("Location")));
                 cache.put(b.contents(), new ParsedSentence(k, new HashSet<>(result._2())));
                 return Stream.of(k);

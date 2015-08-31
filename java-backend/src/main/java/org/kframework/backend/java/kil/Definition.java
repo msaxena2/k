@@ -69,6 +69,7 @@ public class Definition extends JavaSymbolicObject {
         public final SetMultimap<String, SortSignature> signatures;
         public final ImmutableMap<String, Attributes> kLabelAttributes;
         public final Map<org.kframework.kil.Sort, String> freshFunctionNames;
+        public final Map<Sort, Sort> smtSortFlattening;
         public final ConfigurationStructureMap configurationStructureMap;
 
         private DefinitionData(
@@ -78,6 +79,7 @@ public class Definition extends JavaSymbolicObject {
                 SetMultimap<String, SortSignature> signatures,
                 ImmutableMap<String, Attributes> kLabelAttributes,
                 Map<org.kframework.kil.Sort, String> freshFunctionNames,
+                Map<Sort, Sort> smtSortFlattening,
                 ConfigurationStructureMap configurationStructureMap) {
             this.subsorts = subsorts;
             this.builtinSorts = builtinSorts;
@@ -85,6 +87,7 @@ public class Definition extends JavaSymbolicObject {
             this.signatures = signatures;
             this.kLabelAttributes = kLabelAttributes;
             this.freshFunctionNames = freshFunctionNames;
+            this.smtSortFlattening = smtSortFlattening;
             this.configurationStructureMap = configurationStructureMap;
         }
     }
@@ -183,6 +186,7 @@ public class Definition extends JavaSymbolicObject {
                 signaturesBuilder.build(),
                 attributesBuilder.build(),
                 context.freshFunctionNames,
+                context.smtSortFlattening.entrySet().stream().collect(Collectors.toMap(e -> Sort.of(e.getKey()), e -> Sort.of(e.getValue()))),
                 context.getConfigurationStructureMap());
         this.context = context;
     }
@@ -220,6 +224,7 @@ public class Definition extends JavaSymbolicObject {
                 getDataStructureSorts(module),
                 signaturesBuilder.build(),
                 attributesBuilder.build(),
+                null,
                 null,
                 null);
         context = null;
@@ -266,33 +271,7 @@ public class Definition extends JavaSymbolicObject {
         KOREtoBackendKIL transformer = new KOREtoBackendKIL(termContext);
         JavaConversions.setAsJavaSet(module.sentences()).stream().forEach(s -> {
             if (s instanceof org.kframework.definition.Rule) {
-                org.kframework.definition.Rule rule = (org.kframework.definition.Rule) s;
-                K leftHandSide = RewriteToTop.toLeft(rule.body());
-                org.kframework.kil.Rule oldRule = new org.kframework.kil.Rule();
-                oldRule.setAttributes(new KOREtoKIL().convertAttributes(rule.att()));
-                Location loc = rule.att().getOptional(Location.class).orElse(null);
-                Source source = rule.att().getOptional(Source.class).orElse(null);
-                oldRule.setLocation(loc);
-                oldRule.setSource(source);
-                if (leftHandSide instanceof KApply && module.attributesFor().apply(((KApply)leftHandSide).klabel()).contains(Attribute.FUNCTION_KEY)) {
-                    oldRule.putAttribute(Attribute.FUNCTION_KEY, "");
-                }
-                addRule(new Rule(
-                        "",
-                        transformer.convert(leftHandSide),
-                        transformer.convert(RewriteToTop.toRight(rule.body())),
-                        Collections.singletonList(transformer.convert(rule.requires())),
-                        Collections.singletonList(transformer.convert(rule.ensures())),
-                        Collections.emptySet(),
-                        Collections.emptySet(),
-                        ConjunctiveFormula.of(termContext),
-                        false,
-                        null,
-                        null,
-                        null,
-                        null,
-                        oldRule,
-                        termContext));
+                addRule(transformer.convert(Optional.of(module), (org.kframework.definition.Rule) s));
             }
         });
     }
@@ -469,6 +448,10 @@ public class Definition extends JavaSymbolicObject {
 
     public Map<org.kframework.kil.Sort, String> freshFunctionNames() {
         return definitionData.freshFunctionNames;
+    }
+
+    public Map<Sort, Sort> smtSortFlattening() {
+        return definitionData.smtSortFlattening;
     }
 
     public DefinitionData definitionData() {
