@@ -12,10 +12,12 @@ import jline.console.completer.FileNameCompleter;
 import jline.console.completer.NullCompleter;
 import jline.console.completer.StringsCompleter;
 import org.kframework.Rewriter;
+import org.kframework.backend.unparser.OutputModes;
 import org.kframework.debugger.KDebug;
 import org.kframework.debugger.KoreKDebug;
 import org.kframework.kompile.CompiledDefinition;
 import org.kframework.kore.K;
+import org.kframework.krun.KRun;
 import org.kframework.krun.KRunOptions;
 import org.kframework.krun.api.io.FileSystem;
 import org.kframework.krun.modes.ExecutionMode;
@@ -91,6 +93,9 @@ public class DebugExecutionMode implements ExecutionMode<Void> {
         while (true) {
             try {
                 String input = reader.readLine("KDebug> ");
+                if (input == null) {
+                    return null;
+                }
                 if (input.isEmpty()) {
                     continue;
                 }
@@ -114,7 +119,14 @@ public class DebugExecutionMode implements ExecutionMode<Void> {
                 System.out.println(fileNotFound.getMessage());
             } catch (IOException inputException) {
                 KEMException.criticalError("Failed to read input from console");
-            } catch (UserInterruptException | NullPointerException interrupt) {
+            } catch (NullPointerException nullPtrException) {
+                System.out.println("A Null Pointer Exception Occured");
+                K recentK = debugger.getActiveState().getCurrentK();
+                if (recentK != null) {
+                    System.out.println("Most Recent State:");
+                    KRun.prettyPrint(compiledDefinition, OutputModes.PRETTY, s -> System.out.println(s), recentK);
+                }
+            } catch (UserInterruptException interrupt) {
                 return null;
             }
         }
