@@ -126,8 +126,7 @@ public class DebugExecutionMode implements ExecutionMode<Void> {
                     System.out.println("Most Recent State:");
                     KRun.prettyPrint(compiledDefinition, OutputModes.PRETTY, s -> System.out.println(s), recentK);
                 }
-                System.out.println(nullPtrException.getMessage());
-                System.out.println(nullPtrException);
+                nullPtrException.printStackTrace();
             } catch (UserInterruptException interrupt) {
                 return null;
             }
