@@ -119,13 +119,15 @@ public class DebugExecutionMode implements ExecutionMode<Void> {
                 System.out.println(fileNotFound.getMessage());
             } catch (IOException inputException) {
                 KEMException.criticalError("Failed to read input from console");
-            } catch (NullPointerException nullPtrException) {
-                System.out.println("A Null Pointer Exception Occured");
+            } catch (NullPointerException | IllegalStateException nullPtrException) {
                 K recentK = debugger.getActiveState().getCurrentK();
+                System.out.println("An Exception Occured");
                 if (recentK != null) {
                     System.out.println("Most Recent State:");
                     KRun.prettyPrint(compiledDefinition, OutputModes.PRETTY, s -> System.out.println(s), recentK);
                 }
+                System.out.println(nullPtrException.getMessage());
+                System.out.println(nullPtrException);
             } catch (UserInterruptException interrupt) {
                 return null;
             }
