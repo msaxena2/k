@@ -3,6 +3,7 @@ module DOMAINS-COMMON
   imports EMPTY-ID
   imports INT-SYNTAX
   imports BOOL-SYNTAX
+  imports STRING-SYNTAX
 endmodule
 
 module DOMAINS-SYNTAX
@@ -13,11 +14,12 @@ endmodule
 module DOMAINS
   imports INT
   imports BOOL
+  imports STRING
   imports K
+  imports K-IO
   imports LIST
   imports MAP
   imports SET
-  imports K-IO
 endmodule
 
 module MAP
@@ -37,6 +39,7 @@ module MAP
   syntax Map ::= ".Map"                         [function, hook(MAP.unit), latex(\dotCt{Map})]
                // breaks klabel uniqueness
                //| "."                            [function, hook(MAP.unit)]
+  syntax Map ::= "(" Map ")" [bracket]
   /*@ Construct a singleton Map (a Map with only one key/value pair). The key
    is on the left and the value is on the right */
   syntax Map ::= K "|->" K                      [function, hook(MAP.element), latex({#1}\mapsto{#2})]
@@ -302,6 +305,9 @@ module INT
 
   syntax Int ::= freshInt(Int)    [freshGenerator, function]
   rule freshInt(I:Int) => I
+
+  syntax Int ::= randInt(Int) [function, hook(INT.rand)]
+  syntax K ::= srandInt(Int) [function, hook(INT.srand)]
 endmodule
 
 module FLOAT-SYNTAX
