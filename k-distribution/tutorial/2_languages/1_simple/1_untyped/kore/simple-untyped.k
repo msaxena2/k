@@ -282,7 +282,7 @@ languages, we finally tell the tool that values are \K results. */
   syntax Vals ::= List{Val,","} | BottomCommaList
   syntax Exp ::= Val
   syntax Exps ::= Vals
-  syntax KResult ::= Val
+  syntax KResult ::= Val | Vals
 
 /*@ The inclusion of values in expressions follows the methodology of
 syntactic definitions (like, e.g., in SOS): extend the syntax of the language
@@ -473,10 +473,10 @@ global variable before declaring a local function).  The type checker of
 SIMPLE, also defined in \K (see \texttt{examples/simple/typed/static}),
 discards programs which do not respect this requirement. */
 
-  //@ rule <k> function F(Xs) S => .K ...</k>
-  //@      <env> Env => Env[F <- L] </env>
-  //@      <store>... .Map => L |-> lambda(Xs, S) ...</store>
-  //@      <nextLoc> L => L +Int 1 </nextLoc>
+ rule <k> function F(Xs) S => .K ...</k>
+      <env> Env => Env[F <- L] </env>
+      <store>... .Map => L |-> lambda(Xs, S) ...</store>
+      <nextLoc> L => L +Int 1 </nextLoc>
 
 /*@ When we are done with the first pass (pre-processing), the computation
 cell \textsf{k} contains only the token \texttt{execute} (see the configuration
@@ -536,10 +536,9 @@ There is nothing special about the following rules.  They rewrite the
 language constructs to their library counterparts when their arguments
 become values of expected sorts: */
 
-//  rule `I1 + I2` => `I1 +Int I2`
-/*
-  rule (Str1 + Str2) => (Str1 +String Str2)
-  rule (I1 - I2) => (I1 -Int I2
+  rule I1 + I2 => I1 +Int I2
+  rule Str1 + Str2 => Str1 +String Str2
+  rule I1 - I2 => I1 -Int I2
   rule I1 * I2 => I1 *Int I2
   rule I1 / I2 => I1 /Int I2 when I2 =/=K 0
   rule I1 % I2 => I1 %Int I2 when I2 =/=K 0
@@ -548,22 +547,22 @@ become values of expected sorts: */
   rule I1 <= I2 => I1 <=Int I2
   rule I1 > I2 => I1 >Int I2
   rule I1 >= I2 => I1 >=Int I2
-*/
+
 /*@ The equality and inequality constructs reduce to syntactic comparison
 of the two argument values (which is what the equality on $K$ terms does). */
 
-  //@ rule V1:Val == V2:Val => V1 ==K V2
-  //@ rule V1:Val != V2:Val => V1 =/=K V2
+  rule V1:Val == V2:Val => V1 ==K V2
+  rule V1:Val != V2:Val => V1 =/=K V2
 
 /*@ The logical negation is clear, but the logical conjunction and disjunction
 are short-circuited: */
-
-  //@ rule ! T => notBool(T)
-  //@ rule true  && E => E
-  //@ rule false && _ => false
-  //@ rule true  || _ => true
-  //@ rule false || E => E
-
+/*
+  rule ! T => notBool(T)
+  rule true  && E => E
+  rule false && _ => false
+  rule true  || _ => true
+  rule false || E => E
+*/
 /*@ \subsection{Array lookup}
 Untyped SIMPLE does not check array bounds (the dynamically typed version of
 it, in \texttt{examples/simple/typed/dynamic}, does check for array out of
@@ -625,25 +624,25 @@ irrelevant once the function returns).  We add an artificial
 \texttt{nothing} value to the language, which is returned by the
 nulary \texttt{return;} statements. */
 
-  //@ syntax KItem ::=  (Map,K, XstackCell)
+  syntax KItem ::=  (Map,K, List)
 
-  //@ rule <k> lambda(Xs,S)(Vs:Vals) ~> K => mkDecls(Xs,Vs) S return; </k>
-  //@      <control>
-  //@        <fstack> .List => ListItem((Env,K,C)) ...</fstack>
-  //@        XStack 
-  //@      </control>
-  //@      <env> Env => GEnv </env>
-  //@      <genv> GEnv </genv>
+  rule <k> lambda(Xs,S)(Vs:Vals) ~> K => mkDecls(Xs,Vs) S return; </k>
+       <control>
+         <fstack> .List => ListItem((Env,K, XstackList)) ...</fstack>
+         <xstack> XstackList </xstack>
+       </control>
+       <env> Env => GEnv </env>
+       <genv> GEnv </genv>
 
-  //@ rule <k> return(V:Val); ~> _ => V ~> K </k>
-  //@      <control>
-  //@        <fstack> ListItem((Env,K,C)) => .List ...</fstack>
-  //@         _ => C 
-  //@      </control>
-  //@      <env> _ => Env </env>
+   rule <k> return(V:Val); ~> _ => V ~> K </k>
+        <control>
+          <fstack> ListItem((Env,K, XstackList)) => .List ...</fstack>
+          <xstack> _ => XstackList </xstack>
+        </control>
+        <env> _ => Env </env>
 
-  //@ syntax Val ::= "nothing"
-  //@ rule return; => return nothing;   [macro]
+  syntax Val ::= "nothing"
+  rule return; => return nothing;   [macro]
 
 /*@ Like for division-by-zero, it is left unspecified what happens
 when the \texttt{nothing} value is used in domain calculations.  For
