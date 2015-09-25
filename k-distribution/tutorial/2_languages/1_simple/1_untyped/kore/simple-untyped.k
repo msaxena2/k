@@ -161,8 +161,8 @@ the constructs above). */
 
   syntax Bottom
   syntax BottomCommaList ::= List{Bottom,","}
-  syntax Ids  ::= List{Id,","} | BottomCommaList
-  syntax Exps ::= List{Exp,","} | Ids | BottomCommaList                 [strict]  // automatically hybrid now
+  syntax Ids  ::= BottomCommaList | List{Id,","}  
+  syntax Exps ::= BottomCommaList | Ids  | List{Exp,","}             [strict]  // automatically hybrid now
 
 /*@ \subsection{Statements}
 Most of the statement constructs are standard for imperative languages.
@@ -247,7 +247,8 @@ endmodule
 
 
 module SIMPLE-UNTYPED
-  imports SIMPLE-UNTYPED-SYNTAX
+  imports SIMPLE-UNTYPED-COMMON
+  imports DOMAINS
 
 /*@ \section{Basic Semantic Infrastructure}
 Before one starts adding semantic rules to a \K definition, one needs to
@@ -327,24 +328,24 @@ to the \K tool, as indicated by the \textit{\$PGM} variable, followed by the
 \texttt{execute} task (defined shortly). */
 
   configuration <T color="red">
-                  <threads color="orange">
-                    <thread multiplicity="*" color="yellow">
-                      <k color="green"> `$PGM:Stmts ~> execute` </k>
+                  //<threads color="orange">
+                    //<thread multiplicity="*" color="yellow">
+                      <k color="green"> `$PGM:Stmts` ~> `execute` </k>
                       <control color="cyan">
                         <fstack color="blue"> .List </fstack>
                         <xstack color="purple"> .List </xstack>
                       </control>
                       <env color="violet"> .Map </env>
-                      <holds color="black"> .Map </holds>
+                      //<holds color="black"> .Map </holds>
                       <id color="pink"> 0 </id>
-                    </thread>
-                  </threads>
+                    //</thread>
+                  //</threads>
                   <genv color="pink"> .Map </genv>
                   <store color="white"> .Map </store>
-                  <busy color="cyan"> .Set </busy>
-                  <terminated color="red"> .Set </terminated>
-                  <in color="magenta" stream="stdin"> .List </in>
-                  <out color="brown" stream="stdout"> .List </out>
+                  //<busy color="cyan"> .Set </busy>
+                  //<terminated color="red"> .Set </terminated>
+                  //<in color="magenta" stream="stdin"> .List </in>
+                  //<out color="brown" stream="stdout"> .List </out>
                   <nextLoc color="gray"> 0 </nextLoc>
                 </T>
 
@@ -388,12 +389,11 @@ not mention these: the configuration context of the rule is
 automatically transformed to match the declared configuration
 structure. */
 
-  //@ syntax KItem ::= "undefined"  [latex(\bot)]
-
-  //@ rule <k> var X:Id; => .K ...</k>
-  //@      <env> Env => Env[X <- L] </env>
-  //@      <store>... .Map => L |-> undefined ...</store>
-  //@      <nextLoc> L => L +Int 1 </nextLoc>
+  syntax KItem ::= "undefined"  
+  rule <k> var X:Id; => .K ...</k>
+       <env> Env => Env[X <- L] </env>
+       <store>... .Map => L |-> undefined ...</store>
+       <nextLoc> L => L +Int 1 </nextLoc>
 
 /*@ \subsection{Array Declaration}
 The \K semantics of the uni-dimensional array declaration is somehow similar
@@ -496,10 +496,10 @@ having their names bound in the global environment and, as seen below, they
 are executed in that same global environment; all these mean, in particular,
 that the functions ``see'' each other, allowing for mutual recursion, etc. */
 
-  //@ syntax KItem ::= "execute"
-  //@ rule <k> execute => main(.Exps); </k>
-  //@      <env> Env </env>
-  //@      <genv> .Map => Env </genv>  [structural]
+  syntax KItem ::= "execute"
+  rule <k> execute => main(.Exps); </k>
+        <env> Env </env>
+        <genv> .Map => Env </genv>  [structural]
 
 /*@ \section{Expressions}
 We next define the \K semantics of all the expression constructs. */
@@ -1022,10 +1022,10 @@ corresponding store lookup operation. */
 The following operation initializes a sequence of locations with the same
 value: */
 
-  //@ syntax Map ::= Int "..." Int "|->" K
-  //@   [function]
-  //@ rule N ...M |-> _ => .Map  when N >Int M
-  //@ rule N ...M |-> K => N |-> K `N +Int 1` ...M |-> K  when N <=Int M
+  syntax Map ::= Int "..." Int "|->" K
+    [function]
+  rule N ...M |-> _ => .Map  when N >Int M
+  rule N ...M |-> K => N |-> K `N +Int 1` ...M |-> K  when N <=Int M
 
 /*@ The semantics of SIMPLE is now complete.  Make sure you kompile the
 definition with the right options in order to generate the desired model.
