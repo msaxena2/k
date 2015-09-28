@@ -152,7 +152,7 @@ the increment). */
                  Exp "&&" Exp            [strict(1), left]
                | Exp "||" Exp            [strict(1), left]
                > "spawn" Block
-               > Exp "=" Exp             [strict(2), right]
+               > Exp "=" Exp             [strict(2, 1), right]
 
 /*@ We also need comma-separated lists of identifiers and of expressions.
 Moreover, we want them to be strict, that is, to evaluate to lists of results
@@ -161,9 +161,9 @@ the constructs above). */
 
   syntax Bottom
   syntax BottomCommaList ::= List{Bottom,","}
-  syntax Ids  ::= BottomCommaList | List{Id,","}  
-  syntax Exps ::= BottomCommaList | Ids  | List{Exp,","}             [strict]  // automatically hybrid now
-
+  syntax Ids  ::= BottomCommaList | List{Id,","} | Id
+  syntax Exps ::= BottomCommaList | Ids   | Exp
+  syntax Exps ::=  List{Exp,","}         [strict]  // automatically hybrid now
 /*@ \subsection{Statements}
 Most of the statement constructs are standard for imperative languages.
 We syntactically distinguish between empty and non-empty blocks, because we
@@ -235,7 +235,7 @@ straightforward. */
   rule if (E) S => if (E) S else {}                                 [macro]
   rule for(Start Cond; Step) {S} => {Start while (Cond) {S Step;}}  [macro]
   rule for(Start Cond; Step) {} => {Start while (Cond) {Step;}}     [macro]
-  rule var E1:Exp, E2:Exp, Es:Exps; => var E1; var E2, Es;          [macro]
+  rule var E1:Exp, Es:Exps; => var E1; var Es;                      [macro]
   rule var X:Id = E; => var X; X = E;                               [macro]
 
 /*@ For the semantics, we can therefore assume from now on that each
@@ -279,10 +279,10 @@ languages, we finally tell the tool that values are \K results. */
   syntax Val ::= Int | Bool | String
                | array(Int,Int)
                | lambda(Ids,Stmt)
-  syntax Vals ::= List{Val,","} | BottomCommaList
   syntax Exp ::= Val
+  syntax Vals ::= List{Val,","} | BottomCommaList | Val
   syntax Exps ::= Vals
-  syntax KResult ::= Val | Vals
+  syntax KResult ::= Val | Vals 
 
 /*@ The inclusion of values in expressions follows the methodology of
 syntactic definitions (like, e.g., in SOS): extend the syntax of the language
@@ -420,7 +420,9 @@ declarations. */
                           `L +Int 1` ... `L +Int N` |-> undefined ...</store>
        <nextLoc> L => L +Int 1 +Int N </nextLoc>
     when N >=Int 0
+  
 
+  rule  var _:BottomCommaList; => .K        [structural]
 /*@ SIMPLE allows multi-dimensional arrays.  For semantic simplicity, we
 desugar them all into uni-dimensional arrays by code transformation.
 This way, we only need to give semantics to uni-dimensional arrays.
@@ -556,13 +558,14 @@ of the two argument values (which is what the equality on $K$ terms does). */
 
 /*@ The logical negation is clear, but the logical conjunction and disjunction
 are short-circuited: */
-/*
-  rule ! T => notBool(T)
+
+//Todo: Fix the ! rule
+//  rule `!T`:Exp => notBool(T)
   rule true  && E => E
   rule false && _ => false
   rule true  || _ => true
   rule false || E => E
-*/
+
 /*@ \subsection{Array lookup}
 Untyped SIMPLE does not check array bounds (the dynamically typed version of
 it, in \texttt{examples/simple/typed/dynamic}, does check for array out of
@@ -679,10 +682,10 @@ value.  Thus, we first compute the lvalue of the left-hand-side expression
 that appears in an assignment, and then we do the actual assignment to the
 resulting location: */
 
-  //@ context `HOLE => lvalue(HOLE)` = _
+  context `HOLE => lvalue(HOLE)` = _ 
 
-  //@ rule <k> loc(L) = V:Val => V ...</k> <store>... L |-> `_ => V` ...</store>
-  //@   [assignment]
+  rule <k> loc(L) = V:Val => V ...</k> <store>... L |-> `_ => V` ...</store>
+    [assignment]
 
 /*@ \section{Statements}
 We next define the \K semantics of statements. */
@@ -697,8 +700,8 @@ environment after the block.  This allows us to have a very simple semantics
 for variable declarations, as we did above.  One can make the two rules below
 computational if one wants them to count as computational steps. */
 
-  //@ rule {} => .K  [structural]
-  //@ rule <k> { S } => S ~> env(Env) ...</k>  <env> Env </env>  [structural]
+   rule {} => .K  [structural]
+   rule <k> { S } => S ~> env(Env) ...</k>  <env> Env </env>  [structural]
 
 /*@ The basic definition of environment recovery is straightforward and
 given in the section on auxiliary constructs at the end of the file. */
@@ -934,9 +937,9 @@ The \texttt{mkDecls} auxiliary construct turns a list of identifiers
 and a list of values in a sequence of corresponding variable
 declarations. */
 
-  //@ syntax Stmts ::= mkDecls(Ids,Vals)  [function]
-  //@ rule mkDecls(`X:Id, Xs:Ids`, `V:Val, Vs:Vals`) => var X=V; mkDecls(Xs,Vs)
-  //@ rule mkDecls(.Ids,.Vals) => {}
+   syntax Stmts ::= mkDecls(Ids,Vals)  [function]
+   rule mkDecls(`X:Id, Xs:Ids`, `V:Val, Vs:Vals`) => var X=V; mkDecls(Xs,Vs)
+   rule mkDecls(.Ids,.Vals) => {}
 
 /*@ \subsection{Location lookup}
 The operation below is straightforward.  Note that we tag it with the same
@@ -944,8 +947,8 @@ The operation below is straightforward.  Note that we tag it with the same
 both rules will be considered transitions when we include the \texttt{lookup}
 tag in the transition option of \texttt{kompile}. */
 
-  //@ syntax KItem ::= lookup(Int)
-  //@ rule <k> lookup(L) => V ...</k> <store>... `L |-> V:Val` ...</store>  [lookup]
+  syntax KItem ::= lookup(Int)
+  rule <k> lookup(L) => V ...</k> <store>... `L |-> V:Val` ...</store>  [lookup]
 
 /*@ \subsubsection{Environment recovery}
 We have already discussed the environment recovery auxiliary operation in the
@@ -999,23 +1002,23 @@ corresponding store lookup operation. */
 
 // For parsing reasons, we prefer to allow lvalue to take a K
 
-  //@ syntax Exp ::= lvalue(K)
-  //@ syntax Val ::= loc(Int)
+  syntax Exp ::= lvalue(K)
+  syntax Val ::= loc(Int)
 
 // Local variable
 
-  //@ rule <k> lvalue(X:Id => loc(L)) ...</k> <env>... X |-> L:Int ...</env>
-  //@   [structural]
+  rule <k> lvalue(X:Id => loc(L)) ...</k> <env>... X |-> L:Int ...</env>
+    [structural]
 
 // Array element: evaluate the array and its index;
 // then the array lookup rule above applies.
 
-  //@ context lvalue(_:>Exp[HOLE:>Exps])
-  //@ context lvalue(HOLE:>Exp[_:>Exps])
+  context lvalue(_:>Exp[HOLE:>Exps])
+  context lvalue(HOLE:>Exp[_:>Exps])
 
 // Finally, return the address of the desired object member
 
-  //@ rule lvalue(lookup(L:Int) => loc(L))  [structural]
+  rule lvalue(lookup(L:Int) => loc(L))  [structural]
 
 /*@ \subsection{Initializing multiple locations}
 The following operation initializes a sequence of locations with the same
