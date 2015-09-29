@@ -152,7 +152,7 @@ the increment). */
                  Exp "&&" Exp            [strict(1), left]
                | Exp "||" Exp            [strict(1), left]
                > "spawn" Block
-               > Exp "=" Exp             [strict(2, 1), right]
+               > Exp "=" Exp             [strict(2), right]
 
 /*@ We also need comma-separated lists of identifiers and of expressions.
 Moreover, we want them to be strict, that is, to evaluate to lists of results
@@ -282,7 +282,7 @@ languages, we finally tell the tool that values are \K results. */
   syntax Exp ::= Val
   syntax Vals ::= List{Val,","} | BottomCommaList | Val
   syntax Exps ::= Vals
-  syntax KResult ::= Val | Vals 
+  syntax KResult ::= Val | Vals  
 
 /*@ The inclusion of values in expressions follows the methodology of
 syntactic definitions (like, e.g., in SOS): extend the syntax of the language
