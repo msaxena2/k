@@ -581,17 +581,17 @@ and is defined at the end of the file. */
 // at the top of the computation or inside the lvalue wrapper. So it
 // may not be worth, or we may need to come up with a special notation
 // allowing us to enumerate contexts for [anywhere] rules.
-  //@ rule V:Val[N1:Int, N2:Int, Vs:Vals] => V[N1][N2, Vs]
-  //@   [structural, anywhere]
+  rule V:Val[N1:Int, N2:Int, Vs:Vals] => V[N1][N2, Vs]
+    [structural]
 
-  //@ rule array(L,_)[N:Int] => lookup(L +Int N)
-  //@   [structural, anywhere]
+  rule array(L,_)[N:Int] => lookup(L +Int N)
+    [structural]
 
 /*@ \subsection{Size of an array}
 The size of the array is stored in the array reference value, and the
 \texttt{sizeOf} construct was declared strict, so: */
 
-  //@ rule sizeOf(array(_,N)) => N
+  rule sizeOf(array(_,N)) => N
 
 /*@ \subsection{Function call}
 Function application was strict in both its arguments, so we can
@@ -669,7 +669,7 @@ The \texttt{read()} expression construct simply evaluates to the next
 input value, at the same time discarding the input value from the
 \textsf{in} cell. */
 
-  //@ rule <k> read() => I ...</k> <in> ListItem(I:Int) => .List ...</in>  [read]
+ rule <k> read() => I ...</k> <in> ListItem(I:Int) => .List ...</in>  [read]
 
 /*@ \subsection{Assignment}
 In SIMPLE, like in C, assignments are expression constructs and not statement
