@@ -162,8 +162,10 @@ the constructs above). */
   syntax Bottom
   syntax BottomCommaList ::= List{Bottom,","}
   syntax Ids  ::= BottomCommaList | List{Id,","} | Id
-  syntax Exps ::= BottomCommaList | Ids   | Exp
   syntax Exps ::=  List{Exp,","}         [strict]  // automatically hybrid now
+                   > BottomCommaList 
+                  | Ids  
+                  | Exp
 /*@ \subsection{Statements}
 Most of the statement constructs are standard for imperative languages.
 We syntactically distinguish between empty and non-empty blocks, because we
@@ -586,6 +588,10 @@ and is defined at the end of the file. */
 
   rule array(L,_)[N:Int] => lookup(L +Int N)
     [structural]
+
+// Anywhere attribute alternative
+  rule lvalue(`array(L,_)[N:Int]` => `lookup(L +Int N)`)
+
 
 /*@ \subsection{Size of an array}
 The size of the array is stored in the array reference value, and the
