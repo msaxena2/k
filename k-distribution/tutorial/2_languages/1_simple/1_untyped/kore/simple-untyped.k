@@ -344,8 +344,8 @@ to the \K tool, as indicated by the \textit{\$PGM} variable, followed by the
                   <store color="white"> .Map </store>
                   //<busy color="cyan"> .Set </busy>
                   //<terminated color="red"> .Set </terminated>
-                  //<in color="magenta" stream="stdin"> .List </in>
-                  //<out color="brown" stream="stdout"> .List </out>
+                  <in color="magenta" stream="stdin"> .List </in>
+                  <out color="brown" stream="stdout"> .List </out>
                   <nextLoc color="gray"> 0 </nextLoc>
                 </T>
 
@@ -529,9 +529,9 @@ value.  Location values, also defined at the end of the file, are integers
 wrapped with the operation \texttt{loc}, to distinguish them from ordinary
 integers. */
 
-  //@ context ++`HOLE => lvalue(HOLE)`
-  //@ rule <k> ++loc(L) => I +Int 1 ...</k>
-  //@      <store>... L |-> `I => I +Int 1` ...</store>  [increment]
+  context ++`HOLE => lvalue(HOLE)`
+  rule <k> ++loc(L) => I +Int 1 ...</k>
+       <store>... L |-> `I => I +Int 1` ...</store>  [increment]
 
 /*@ \subsection{Arithmetic operators}
 There is nothing special about the following rules.  They rewrite the
@@ -790,9 +790,9 @@ evaluated (recall that \texttt{print} is variadic).  We append each of
 its evaluated arguments to the output buffer, and discard the residual
 \texttt{print} statement with an empty list of arguments. */
 
-  //@ rule <k> print(V:Val, Es => Es); ...</k> <out>... .List => ListItem(V) </out>
-  //@   [print]
-  //@ rule print(.Vals); => .K  [structural]
+  rule <k> print(V:Val, Es); => print(Es); ...</k> <out>... .List => ListItem(V) </out>
+    [print]
+  rule print(.Vals); => .K  [structural]
 
 /*@ \subsection{Exceptions}
 SIMPLE allows parametric exceptions, in that one can throw and catch a
@@ -820,26 +820,26 @@ is thrown to correctly recover the execution context.  This can be easily
 achieved by pushing/popping the entire current control context onto the
 exception stack.  The three rules below modularly do precisely the above. */
 
-  //@ syntax KItem ::= (Id,Stmts,K,Map,FstackCell)
+  syntax KItem ::= (Id,Stmts,K,Map,List)
 
-  //@ syntax KItem ::= "popx"
+  syntax KItem ::= "popx"
 
-  //@ rule <k> `try S1 catch(X) {S2} => S1 ~> popx` ~> K </k>
-  //@      <control>
-  //@        C 
-  //@        <xstack> .List => ListItem((X, S2, K, Env, C)) ...</xstack>         
-  //@      </control>
-  //@      <env> Env </env>
+  rule <k> `try S1 catch(X) {S2} => S1 ~> popx` ~> K </k>
+       <control>
+         <fstack> C </fstack> 
+         <xstack> .List => ListItem((X, S2, K, Env, C)) ...</xstack>         
+       </control>
+       <env> Env </env>
 
-  //@ rule <k> popx => .K ...</k>
-  //@      <xstack> ListItem(_) => .List ...</xstack>
+  rule <k> popx => .K ...</k>
+       <xstack> ListItem(_) => .List ...</xstack>
 
-  //@ rule <k> throw V:Val; ~> _ => { var X = V; S2 } ~> K </k>
-  //@      <control>
-  //@        <xstack> ListItem((X, S2, K, Env, C)) => .List ...</xstack>
-  //@         _ => C 
-  //@      </control>
-  //@      <env> _ => Env </env>
+  rule <k> throw V:Val; ~> _ => { var X = V; S2 } ~> K </k>
+       <control>
+         <fstack> _ => C </fstack>
+         <xstack> ListItem((X, S2, K, Env, C)) => .List ...</xstack>
+       </control>
+       <env> _ => Env </env>
 
 /*@ The catch statement $S_2$ needs to be executed in the original environment,
 but where the thrown value $V$ is bound to the catch variable $X$.  We here
@@ -956,8 +956,8 @@ IMP++ tutorial: */
 
 // TODO: eliminate the env wrapper, like we did in IMP++
 
-  //@ syntax KItem ::= env(Map)
-  //@ rule <k> env(Env) => .K ...</k> <env> _ => Env </env>  [structural]
+  syntax KItem ::= env(Map)
+  rule <k> env(Env) => .K ...</k> <env> _ => Env </env>  [structural]
 
 /*@  While theoretically sufficient, the basic definition for environment
 recovery alone is suboptimal.  Consider a loop \texttt{while (E)S},
@@ -972,7 +972,7 @@ recovery tasks, we only need to keep the last one.  The elegant rule below
 does precisely that, thus avoiding the unnecessary computation explosion
 problem: */
 
-  //@ rule `env(_) => .` ~> env(_)  [structural]
+  rule `env(_) => .K` ~> env(_)  [structural]
 
 /* In fact, the above follows a common convention in \K for recovery
 operations of cell contents: the meaning of a computation task of the form
