@@ -164,7 +164,7 @@ the constructs above). */
   syntax Ids  ::= BottomCommaList | List{Id,","} | Id
   syntax Exps ::=   BottomCommaList 
                   | List{Exp,","} 
-                  > Exp
+                  | Exp
                   | Ids                  
                   
 /*@ \subsection{Statements}
