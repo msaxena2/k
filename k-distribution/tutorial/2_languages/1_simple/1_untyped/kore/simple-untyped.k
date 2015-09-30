@@ -162,10 +162,11 @@ the constructs above). */
   syntax Bottom
   syntax BottomCommaList ::= List{Bottom,","}
   syntax Ids  ::= BottomCommaList | List{Id,","} | Id
-  syntax Exps ::=  List{Exp,","}         [strict]  // automatically hybrid now
-                   > BottomCommaList 
-                  | Ids  
-                  | Exp
+  syntax Exps ::=   BottomCommaList 
+                  | List{Exp,","} 
+                  > Exp
+                  | Ids                  
+                  
 /*@ \subsection{Statements}
 Most of the statement constructs are standard for imperative languages.
 We syntactically distinguish between empty and non-empty blocks, because we
