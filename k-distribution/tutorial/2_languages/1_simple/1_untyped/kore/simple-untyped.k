@@ -222,7 +222,7 @@ of syntactic mismatch. */
 
 // I wish I were able to write the following instead, but confuses the parser.
 //
-// syntax Stmts ::= List{Stmt,""}
+// syntax Stmts ::= List{Stmt,""}                       
 // syntax Top ::= Stmt | "function" Id "(" Ids ")" Block
 // syntax Pgm ::= List{Top,""}
 //
