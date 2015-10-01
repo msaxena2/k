@@ -161,11 +161,9 @@ the constructs above). */
 
   syntax Bottom
   syntax BottomCommaList ::= List{Bottom,","}
-  syntax Ids  ::= BottomCommaList | List{Id,","} 
-  syntax Exps ::=   BottomCommaList 
-                  | List{Exp,","} 
-                  | Ids                  
-                  
+  syntax Ids  ::= BottomCommaList | List{Id,","} | Id
+  syntax Exps ::= BottomCommaList | Ids   | Exp
+  syntax Exps ::=  List{Exp,","}         [strict]  // automatically hybrid now
 /*@ \subsection{Statements}
 Most of the statement constructs are standard for imperative languages.
 We syntactically distinguish between empty and non-empty blocks, because we
@@ -222,7 +220,7 @@ of syntactic mismatch. */
 
 // I wish I were able to write the following instead, but confuses the parser.
 //
-// syntax Stmts ::= List{Stmt,""}                       
+// syntax Stmts ::= List{Stmt,""}
 // syntax Top ::= Stmt | "function" Id "(" Ids ")" Block
 // syntax Pgm ::= List{Top,""}
 //
@@ -282,7 +280,7 @@ languages, we finally tell the tool that values are \K results. */
                | array(Int,Int)
                | lambda(Ids,Stmt)
   syntax Exp ::= Val
-  syntax Vals ::= List{Val,","} | BottomCommaList 
+  syntax Vals ::= List{Val,","} | BottomCommaList | Val
   syntax Exps ::= Vals
   syntax KResult ::= Val | Vals  
 
@@ -588,10 +586,6 @@ and is defined at the end of the file. */
 
   rule array(L,_)[N:Int] => lookup(L +Int N)
     [structural]
-
-// Anywhere attribute alternative
-  rule lvalue(`array(L,_)[N:Int]` => `lookup(L +Int N)`)
-
 
 /*@ \subsection{Size of an array}
 The size of the array is stored in the array reference value, and the
