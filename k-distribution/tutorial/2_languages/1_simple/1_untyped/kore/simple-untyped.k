@@ -161,10 +161,9 @@ the constructs above). */
 
   syntax Bottom
   syntax BottomCommaList ::= List{Bottom,","}
-  syntax Ids  ::= BottomCommaList | List{Id,","} | Id
+  syntax Ids  ::= BottomCommaList | List{Id,","} 
   syntax Exps ::=   BottomCommaList 
                   | List{Exp,","} 
-                  | Exp
                   | Ids                  
                   
 /*@ \subsection{Statements}
@@ -283,7 +282,7 @@ languages, we finally tell the tool that values are \K results. */
                | array(Int,Int)
                | lambda(Ids,Stmt)
   syntax Exp ::= Val
-  syntax Vals ::= List{Val,","} | BottomCommaList | Val
+  syntax Vals ::= List{Val,","} | BottomCommaList 
   syntax Exps ::= Vals
   syntax KResult ::= Val | Vals  
 
