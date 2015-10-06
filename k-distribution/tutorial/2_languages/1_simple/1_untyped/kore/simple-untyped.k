@@ -94,8 +94,10 @@ for functions.  We are going to allow declarations of the form
 keyword to take a list of expressions.  The non-terminals used in the two
 productions below are defined shortly. */
 
-  syntax Decl ::= "var" Exps ";"
+  syntax Decl ::= "var" Exps ";"  
+                | "var" Exp ";"  
                 | "function" Id "(" Ids ")" Block
+                | "function" Id "(" Id ")" Block
 
 /*@ \subsection{Expressions}
 The expression constructs below are standard.  Increment (\texttt{++}) takes
@@ -161,8 +163,8 @@ the constructs above). */
 
   syntax Bottom
   syntax BottomCommaList ::= List{Bottom,","}
-  syntax Ids  ::= BottomCommaList | List{Id,","} | Id
-  syntax Exps ::= BottomCommaList | Ids   | Exp
+  syntax Ids  ::= BottomCommaList | List{Id,","} 
+  syntax Exps ::= BottomCommaList | Ids 
   syntax Exps ::=  List{Exp,","}         [strict]  // automatically hybrid now
 /*@ \subsection{Statements}
 Most of the statement constructs are standard for imperative languages.
@@ -280,9 +282,9 @@ languages, we finally tell the tool that values are \K results. */
                | array(Int,Int)
                | lambda(Ids,Stmt)
   syntax Exp ::= Val
-  syntax Vals ::= List{Val,","} | BottomCommaList | Val
+  syntax Vals ::= List{Val,","} | BottomCommaList 
   syntax Exps ::= Vals
-  syntax KResult ::= Val | Vals  
+  syntax KResult ::= Val | Vals
 
 /*@ The inclusion of values in expressions follows the methodology of
 syntactic definitions (like, e.g., in SOS): extend the syntax of the language
@@ -382,7 +384,7 @@ is of sort $\it KItem$, instead of $\it Val$, on purpose; this way, the
 store lookup rules will get stuck when one attempts to lookup an
 uninitialized location.  All the above happen in one transactional step,
 with the rule below.  Note also how configuration abstraction allows us to
-only mention the needed cells; indeed, as the configuration above states,
+only mention the needed cells; indeed, as the uonfiguration above states,
 the \textsf{k} and \textsf{env} cells are actually located within a
 \textsf{thread} cell within the \textsf{threads} cell, but one needs
 not mention these: the configuration context of the rule is
@@ -629,7 +631,7 @@ nulary \texttt{return;} statements. */
 
   syntax KItem ::=  (Map,K, List)
 
-  rule <k> lambda(Xs,S)(Vs:Vals) ~> K => mkDecls(Xs,Vs) S return; </k>
+  rule <k> `lambda(Xs,S)(Vs:Vals) ~> K` => `mkDecls(Xs,Vs) S return;` </k>
        <control>
          <fstack> .List => ListItem((Env,K, XstackList)) ...</fstack>
          <xstack> XstackList </xstack>
@@ -637,7 +639,7 @@ nulary \texttt{return;} statements. */
        <env> Env => GEnv </env>
        <genv> GEnv </genv>
 
-   rule <k> return(V:Val); ~> _ => V ~> K </k>
+   rule <k> `return(V:Val); ~> _` => `V ~> K` </k>
         <control>
           <fstack> ListItem((Env,K, XstackList)) => .List ...</fstack>
           <xstack> _ => XstackList </xstack>
