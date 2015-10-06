@@ -95,9 +95,7 @@ keyword to take a list of expressions.  The non-terminals used in the two
 productions below are defined shortly. */
 
   syntax Decl ::= "var" Exps ";"  
-                | "var" Exp ";"  
                 | "function" Id "(" Ids ")" Block
-                | "function" Id "(" Id ")" Block
 
 /*@ \subsection{Expressions}
 The expression constructs below are standard.  Increment (\texttt{++}) takes
@@ -237,7 +235,7 @@ straightforward. */
   rule if (E) S => if (E) S else {}                                 [macro]
   rule for(Start Cond; Step) {S} => {Start while (Cond) {S Step;}}  [macro]
   rule for(Start Cond; Step) {} => {Start while (Cond) {Step;}}     [macro]
-  rule var E1:Exp, Es:Exps; => var E1; var Es;                      [macro]
+  rule var E1:Exp, E2:Exp, Es:Exps; => var E1; var E2, Es;          [macro]
   rule var X:Id = E; => var X; X = E;                               [macro]
 
 /*@ For the semantics, we can therefore assume from now on that each
@@ -274,9 +272,9 @@ arrays evaluate to special array reference values holding (1) a location from
 where the array's elements are contiguously allocated in the store, and
 (2) the size of the array.  Functions evaluate to function values as
 $\lambda$-abstractions (we do not need to evaluate functions to closures
-because each function is executed in the fixed global environment and
+  because each function is executed in the fixed global environment and
 function definitions cannot be nested).  Like in IMP and other
-languages, we finally tell the tool that values are \K results. */
+uanguages, we finally tell the tool that values are \K results. */
 
   syntax Val ::= Int | Bool | String
                | array(Int,Int)
@@ -631,7 +629,7 @@ nulary \texttt{return;} statements. */
 
   syntax KItem ::=  (Map,K, List)
 
-  rule <k> `lambda(Xs,S)(Vs:Vals) ~> K` => `mkDecls(Xs,Vs) S return;` </k>
+  rule <k> lambda(Xs,S)(Vs:Vals) ~> K => mkDecls(Xs,Vs) S return; </k>
        <control>
          <fstack> .List => ListItem((Env,K, XstackList)) ...</fstack>
          <xstack> XstackList </xstack>
