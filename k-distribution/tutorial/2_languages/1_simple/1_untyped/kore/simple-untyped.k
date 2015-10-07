@@ -630,7 +630,7 @@ nulary \texttt{return;} statements. */
 
   syntax KItem ::=  (Map,K, List)
 
-  rule <k> lambda(Xs,S)(Vs:Vals) ~> K => mkDecls(Xs,Vs) S return; </k>
+  rule <k> `lambda(Xs,S)(Vs:Vals)` ~> K => mkDecls(Xs,Vs) S return; </k>
        <control>
          <fstack> .List => ListItem((Env,K, XstackList)) ...</fstack>
          <xstack> XstackList </xstack>

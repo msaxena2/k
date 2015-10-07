@@ -74,7 +74,7 @@ public class AddEmptyLists extends SetsGeneralTransformer<ParseFailedException, 
                         || tc.production().klabel().get().name().startsWith("#SemanticCastTo")
                         || tc.production().klabel().get().name().equals("#InnerCast")))) {
                     newItems.add(child);
-                } else if (childSort.equals(Sorts.K()) || subsorts.lessThanEq(childSort, expectedSort)) {
+                } else if (childSort.equals(Sorts.K()) || !subsorts.lessThan(childSort, expectedSort)) {
                     String msg = "Found sort '" + childSort + "' where list sort '" + expectedSort + "' was expected. Moving on.";
                     warnings.add(new ParseFailedException(
                             new KException(KException.ExceptionType.HIDDENWARNING, KException.KExceptionGroup.LISTS, msg, child.source().get(), child.location().get())));
