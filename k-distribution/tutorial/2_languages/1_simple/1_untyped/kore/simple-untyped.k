@@ -329,22 +329,22 @@ to the \K tool, as indicated by the \textit{\$PGM} variable, followed by the
 \texttt{execute} task (defined shortly). */
 
   configuration <T color="red">
-                  //<threads color="orange">
-                    //<thread multiplicity="*" color="yellow">
+                  <threads color="orange">
+                    <thread multiplicity="*" color="yellow">
                       <k color="green"> `$PGM:Stmts` ~> `execute` </k>
                       <control color="cyan">
                         <fstack color="blue"> .List </fstack>
                         <xstack color="purple"> .List </xstack>
                       </control>
                       <env color="violet"> .Map </env>
-                      //<holds color="black"> .Map </holds>
+                      <holds color="black"> .Map </holds>
                       <id color="pink"> 0 </id>
-                    //</thread>
-                  //</threads>
+                    </thread>
+                  </threads>
                   <genv color="pink"> .Map </genv>
                   <store color="white"> .Map </store>
-                  //<busy color="cyan"> .Set </busy>
-                  //<terminated color="red"> .Set </terminated>
+                  <busy color="cyan"> .Set </busy>
+                  <terminated color="red"> .Set </terminated>
                   <in color="magenta" stream="stdin"> .List </in>
                   <out color="brown" stream="stdout"> .List </out>
                   <nextLoc color="gray"> 0 </nextLoc>
@@ -873,6 +873,15 @@ same environment with the parent thread.  Note that the newly created
 and initialized automatically as described in the definition of SIMPLE's
 configuration.  This is part of \K's configuration abstraction mechanism. */
 
+  rule <thread>...
+         <k> spawn S => !T:Int ...</k>
+         <env> Env </env>
+       ...</thread>
+       `.Bag => <thread>...
+               <k> S </k>
+               <env> Env </env>
+               <id> !T </id>
+             ...</thread>`
 
 /*@ \subsubsection{Thread termination}
 Dually to the above, when a thread terminates its assigned computation (the
@@ -888,6 +897,9 @@ added to the \textsf{busy} cell as soon as it is acquired for the first time
 by a thread.  The unique identifier of the terminated thread is also collected
 into the \textsf{terminated} cell, so the \texttt{join} construct knows which
 threads have terminated. */
+  rule `<thread>... <k>.K</k> <holds>H</holds> <id>T</id> ...</thread> => .Bag`
+       <busy> Busy => Busy -Set keys(H) </busy>
+       <terminated>... .Set => SetItem(T) ...</terminated>
 
 
 
@@ -896,6 +908,8 @@ Thread joining is now straightforward: all we need to do is to check whether
 the identifier of the thread to be joined is in the \textsf{terminated} cell.
 If yes, then the \texttt{join} statement dissolves and the joining thread
 continues normally; if not, then the joining thread gets stuck. */
+  rule <k> join T:Int; => .Bag ...</k>
+       <terminated>... SetItem(T) ...</terminated>
 
 
 
@@ -908,6 +922,13 @@ the side condition of the first rule).\\
 (2) The thread already has the lock, in which case it just increments its
 counter for the lock (the locks are re-entrant).  These two cases are captured
 by the two rules below: */
+  rule <k> acquire V:Val; => .K ...</k>
+       <holds>... .Map => V |-> 0 ...</holds>
+       <busy> Busy `.Set => SetItem(V)` </busy>
+    when `notBool `V in Busy``  [acquire]
+
+  rule <k> acquire V; => .K ...</k>
+       <holds>... V:Val |-> `N => N +Int 1` ...</holds>
 
 
 /*@ \subsubsection{Release lock}
@@ -918,7 +939,12 @@ is to decrement the lock counter.\\
 (2) The thread holds the lock only once, in which case it needs to remove it
 from its \textsf{holds} cell and also from the the shared \textsf{busy} cell,
 so other threads can acquire it if they need to. */
+  rule <k> release V:Val; => .K ...</k>
+       <holds>... V |-> `N => N -Int 1` ...</holds>
+    when N >Int 0
 
+  rule <k> release V; => .K ...</k> <holds>... V:Val |-> 0 => .Map ...</holds>
+       <busy>... SetItem(V) => .Set ...</busy>
   
 /*@ \subsubsection{Rendezvous synchronization}
 In addition to synchronization through acquire and release of locks, SIMPLE
@@ -935,6 +961,8 @@ since the only cell which can multiply containing a \textsf{k} cell inside is
 the \textsf{thread} cell, the only way to concretize the rule below to the
 actual configuration of SIMPLE is to include each \textsf{k} cell in a
 \textsf{thread} cell. */
+  rule <k> rendezvous V:Val; => .K ...</k>
+       <k> rendezvous V; => .K ...</k>  [rendezvous]
 
 
 /*@ \section{Auxiliary declarations and operations}
