@@ -283,7 +283,7 @@ uanguages, we finally tell the tool that values are \K results. */
   syntax Vals ::= BottomCommaList
   syntax Vals ::= List{Val,","}
   syntax Exps ::= Vals
-  syntax KResult ::= Val | BottomCommaList 
+  syntax KResult ::= Val | Vals
 
 /*@ The inclusion of values in expressions follows the methodology of
 syntactic definitions (like, e.g., in SOS): extend the syntax of the language
@@ -586,6 +586,14 @@ and is defined at the end of the file. */
     [structural]
 
   rule array(L,_)[N:Int] => lookup(L +Int N)
+  [structural]  
+
+
+// substitute for the anywhere rules
+  rule lvalue(array(L,_)[N:Int] => lookup(L +Int N))
+  [structural]  
+  
+  rule lvalue(V:Val[N1:Int, N2:Int, Vs:Vals] => V[N1][N2, Vs])
     [structural]
 
 /*@ \subsection{Size of an array}
