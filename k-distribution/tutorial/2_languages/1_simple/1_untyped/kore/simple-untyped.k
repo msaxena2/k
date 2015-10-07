@@ -280,9 +280,10 @@ uanguages, we finally tell the tool that values are \K results. */
                | array(Int,Int)
                | lambda(Ids,Stmt)
   syntax Exp ::= Val
-  syntax Vals ::= List{Val,","} | BottomCommaList 
+  syntax Vals ::= BottomCommaList
+  syntax Vals ::= List{Val,","}
   syntax Exps ::= Vals
-  syntax KResult ::= Val | Vals
+  syntax KResult ::= Val | BottomCommaList 
 
 /*@ The inclusion of values in expressions follows the methodology of
 syntactic definitions (like, e.g., in SOS): extend the syntax of the language
