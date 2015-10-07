@@ -42,10 +42,10 @@ public class AddEmptyLists extends SetsGeneralTransformer<ParseFailedException, 
     private final scala.collection.immutable.Set<Sort> listSorts;
     private final Map<String, List<UserList>> lists;
 
-    public AddEmptyLists(Module m) {
-        this.m = m;
-        subsorts = m.subsorts();
-        listSorts = m.listSorts();
+    public AddEmptyLists(Module seedModule, Module disambModule) {
+        this.m = disambModule;
+        subsorts = seedModule.subsorts();
+        listSorts = disambModule.listSorts();
         lists = UserList.getLists(mutable(m.sentences())).stream().collect(Collectors.groupingBy(p -> p.sort));
     }
 
@@ -74,7 +74,7 @@ public class AddEmptyLists extends SetsGeneralTransformer<ParseFailedException, 
                         || tc.production().klabel().get().name().startsWith("#SemanticCastTo")
                         || tc.production().klabel().get().name().equals("#InnerCast")))) {
                     newItems.add(child);
-                } else if (childSort.equals(Sorts.K()) || !subsorts.lessThan(childSort, expectedSort)) {
+                } else if (childSort.equals(Sorts.K()) || subsorts.lessThan(childSort, expectedSort)) {
                     String msg = "Found sort '" + childSort + "' where list sort '" + expectedSort + "' was expected. Moving on.";
                     warnings.add(new ParseFailedException(
                             new KException(KException.ExceptionType.HIDDENWARNING, KException.KExceptionGroup.LISTS, msg, child.source().get(), child.location().get())));

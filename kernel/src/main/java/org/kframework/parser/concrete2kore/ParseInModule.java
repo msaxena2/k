@@ -168,7 +168,7 @@ public class ParseInModule implements Serializable {
         Term rez3 = new PreferAvoidVisitor().apply(rez2._1().right().get());
         rez2 = new AmbFilter().apply(rez3);
         warn = new AmbFilter().mergeWarnings(rez2._2(), warn);
-        rez2 = new AddEmptyLists(disambModule).apply(rez2._1().right().get());
+        rez2 = new AddEmptyLists(seedModule, disambModule).apply(rez2._1().right().get());
         warn = new AmbFilter().mergeWarnings(rez2._2(), warn);
         rez3 = new RemoveBracketVisitor().apply(rez2._1().right().get());
 
