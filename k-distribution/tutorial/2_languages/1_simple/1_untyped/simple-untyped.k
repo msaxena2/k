@@ -272,9 +272,9 @@ arrays evaluate to special array reference values holding (1) a location from
 where the array's elements are contiguously allocated in the store, and
 (2) the size of the array.  Functions evaluate to function values as
 $\lambda$-abstractions (we do not need to evaluate functions to closures
-  because each function is executed in the fixed global environment and
+because each function is executed in the fixed global environment and
 function definitions cannot be nested).  Like in IMP and other
-uanguages, we finally tell the tool that values are \K results. */
+languages, we finally tell the tool that values are \K results. */
 
   syntax Val ::= Int | Bool | String
                | array(Int,Int)
@@ -383,7 +383,7 @@ is of sort $\it KItem$, instead of $\it Val$, on purpose; this way, the
 store lookup rules will get stuck when one attempts to lookup an
 uninitialized location.  All the above happen in one transactional step,
 with the rule below.  Note also how configuration abstraction allows us to
-only mention the needed cells; indeed, as the uonfiguration above states,
+only mention the needed cells; indeed, as the configuration above states,
 the \textsf{k} and \textsf{env} cells are actually located within a
 \textsf{thread} cell within the \textsf{threads} cell, but one needs
 not mention these: the configuration context of the rule is
