@@ -94,7 +94,7 @@ for functions.  We are going to allow declarations of the form
 keyword to take a list of expressions.  The non-terminals used in the two
 productions below are defined shortly. */
 
-  syntax Decl ::= "var" Exps ";"  
+  syntax Decl ::= "var" Exps ";"
                 | "function" Id "(" Ids ")" Block
 
 /*@ \subsection{Expressions}
@@ -161,8 +161,8 @@ the constructs above). */
 
   syntax Bottom
   syntax BottomCommaList ::= List{Bottom,","}
-  syntax Ids  ::= BottomCommaList | List{Id,","} 
-  syntax Exps ::= BottomCommaList | Ids 
+  syntax Ids  ::= BottomCommaList | List{Id,","}
+  syntax Exps ::= BottomCommaList | Ids
   syntax Exps ::=  List{Exp,","}         [strict]  // automatically hybrid now
 /*@ \subsection{Statements}
 Most of the statement constructs are standard for imperative languages.
@@ -390,7 +390,7 @@ not mention these: the configuration context of the rule is
 automatically transformed to match the declared configuration
 structure. */
 
-  syntax KItem ::= "undefined"  
+  syntax KItem ::= "undefined"
   rule <k> var X:Id; => .K ...</k>
        <env> Env => Env[X <- L] </env>
        <store>... .Map => L |-> undefined ...</store>
@@ -421,7 +421,7 @@ declarations. */
                           `L +Int 1` ... `L +Int N` |-> undefined ...</store>
        <nextLoc> L => L +Int 1 +Int N </nextLoc>
     when N >=Int 0
-  
+
 
   rule  var _:BottomCommaList; => .K        [structural]
 /*@ SIMPLE allows multi-dimensional arrays.  For semantic simplicity, we
@@ -586,13 +586,13 @@ and is defined at the end of the file. */
     [structural]
 
   rule array(L,_)[N:Int] => lookup(L +Int N)
-  [structural]  
+  [structural]
 
 
 // substitute for the anywhere rules
   rule lvalue(array(L,_)[N:Int] => lookup(L +Int N))
-  [structural]  
-  
+  [structural]
+
   rule lvalue(V:Val[N1:Int, N2:Int, Vs:Vals] => V[N1][N2, Vs])
     [structural]
 
@@ -691,7 +691,7 @@ value.  Thus, we first compute the lvalue of the left-hand-side expression
 that appears in an assignment, and then we do the actual assignment to the
 resulting location: */
 
-  context `HOLE => lvalue(HOLE)` = _ 
+  context `HOLE => lvalue(HOLE)` = _
 
   rule <k> loc(L) = V:Val => V ...</k> <store>... L |-> `_ => V` ...</store>
     [assignment]
@@ -768,7 +768,7 @@ Expression statements are only used for their side effects, so their result
 value is simply discarded.  Common examples of expression statements are ones
 of the form \texttt{++x;}, \texttt{x=e;}, \texttt{e1[e2]=e3;}, etc. */
 
-  rule _:Val; => .K 
+  rule _:Val; => .K
 
 /*@ \subsection{Conditional}
 Since the conditional was declared with the \texttt{strict(1)} attribute, we
@@ -835,8 +835,8 @@ exception stack.  The three rules below modularly do precisely the above. */
 
   rule <k> `try S1 catch(X) {S2} => S1 ~> popx` ~> K </k>
        <control>
-         <fstack> C </fstack> 
-         <xstack> .List => ListItem((X, S2, K, Env, C)) ...</xstack>         
+         <fstack> C </fstack>
+         <xstack> .List => ListItem((X, S2, K, Env, C)) ...</xstack>
        </control>
        <env> Env </env>
 
@@ -945,7 +945,7 @@ so other threads can acquire it if they need to. */
 
   rule <k> release V; => .K ...</k> <holds>... V:Val |-> 0 => .Map ...</holds>
        <busy>... SetItem(V) => .Set ...</busy>
-  
+
 /*@ \subsubsection{Rendezvous synchronization}
 In addition to synchronization through acquire and release of locks, SIMPLE
 also provides a construct for rendezvous synchronization.  A thread whose next
