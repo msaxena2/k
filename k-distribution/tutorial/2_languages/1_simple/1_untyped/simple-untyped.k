@@ -561,7 +561,7 @@ of the two argument values (which is what the equality on $K$ terms does). */
 are short-circuited: */
 
 //Todo: Fix the ! rule
-//  rule `!T`:Exp => notBool(T)
+  rule ! T => notBool(T)
   rule true  && E => E
   rule false && _ => false
   rule true  || _ => true
@@ -1063,8 +1063,8 @@ value: */
 
   syntax Map ::= Int "..." Int "|->" K
     [function]
-  rule N ...M |-> _ => .Map  when N >Int M
-  rule N ...M |-> K => N |-> K `N +Int 1` ...M |-> K  when N <=Int M
+  rule N...M |-> _ => .Map  when N >Int M
+  rule N...M |-> K => N |-> K `N +Int 1` ...M |-> K  when N <=Int M
 
 /*@ The semantics of SIMPLE is now complete.  Make sure you kompile the
 definition with the right options in order to generate the desired model.
