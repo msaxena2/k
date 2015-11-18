@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (c) 2013-2015 K Team. All Rights Reserved. -->
+<tests>
+
+  <test definition="simple-untyped"
+        skip="pdf"
+        programs="."
+        extension="simple"
+        exclude="dekker"
+        results="." >
+        <all-programs>
+          <krun-option name="--output" value="none" />
+        </all-programs>
+        <program name="threads_05.simple">
+          <krun-option name="--search" />
+          <krun-option name="--bound" value="5" />
+        </program>
+  </test>
+
+</tests>
