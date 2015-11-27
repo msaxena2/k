@@ -95,6 +95,11 @@ object Att {
     * attribute marking the top rule label
     */
   val topRule = "topRule"
+
+  /**
+    * attribute marking the Variable Label containing rule
+    */
+  val varLabel = "variableLabel"
 }
 
 trait AttributesToString {
