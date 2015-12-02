@@ -59,10 +59,8 @@ import static org.kframework.kore.KORE.*;
  */
 public class SortCells {
     private final ConcretizationInfo cfg;
-    private final KExceptionManager kem;
-    public SortCells(ConfigurationInfo cfgInfo, LabelInfo labelInfo, KExceptionManager kem) {
+    public SortCells(ConfigurationInfo cfgInfo, LabelInfo labelInfo) {
         this.cfg = new ConcretizationInfo(cfgInfo, labelInfo);
-        this.kem = kem;
     }
 
     public synchronized K sortCells(K term) {
@@ -315,7 +313,7 @@ public class SortCells {
 
     private Sort getPredicateSort(Sort s) {
         if (cfg.getMultiplicity(s) == Multiplicity.STAR) {
-            scala.collection.immutable.Set<Sort> sorts = cfg.cfg.getCellBagSortsOfCell(s);
+            scala.collection.Set<Sort> sorts = cfg.cfg.getCellBagSortsOfCell(s);
             if (sorts.size() != 1) {
                 throw KEMException.compilerError("Expected exactly one cell collection sort for the sort " + s + "; found " + sorts);
             }

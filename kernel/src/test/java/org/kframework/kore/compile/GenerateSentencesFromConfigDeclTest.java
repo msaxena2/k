@@ -24,7 +24,7 @@ import org.kframework.parser.concrete2kore.generator.RuleGrammarGenerator;
 import org.kframework.utils.StringUtil;
 import org.kframework.utils.errorsystem.KExceptionManager;
 import org.kframework.utils.file.FileUtil;
-import scala.collection.immutable.Set;
+import scala.collection.Set;
 
 import java.io.File;
 import java.util.Arrays;
@@ -51,7 +51,7 @@ public class GenerateSentencesFromConfigDeclTest {
 
         def =
                 parser.loadDefinition("K", "K", definitionText,
-                        Source.apply(definitionFile.getAbsolutePath()),
+                        definitionFile,
                         definitionFile.getParentFile(),
                         Lists.newArrayList(Kompile.BUILTIN_DIRECTORY),
                         true);
