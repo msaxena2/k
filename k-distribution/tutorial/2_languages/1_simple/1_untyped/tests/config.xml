@@ -6,10 +6,8 @@
         skip="pdf"
         programs="."
         extension="simple"
-        exclude="dekker threads_07 threads_10 threads_11 exceptions_07"
+        exclude="dekker exceptions_07"
         results=".">
-        <kompile-option name="--superheat" value="strict" />
-        <kompile-option name="--backend" value="java" />
         <all-programs>
           <krun-option name="--output" value="none" />
         </all-programs>
