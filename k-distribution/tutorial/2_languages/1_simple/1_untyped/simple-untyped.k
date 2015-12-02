@@ -126,7 +126,7 @@ assignment which is only strict in its second argument (for the same reason as
 the increment). */
 
   syntax Exp ::= Int | Bool | String | Id
-               | "(" Exp ")"             [strict] 
+               | "(" Exp ")"             [strict]
                | "++" Exp
                > Exp "[" Exps "]"        [strict]
                > Exp "(" Exps ")"        [strict]
