@@ -126,7 +126,7 @@ assignment which is only strict in its second argument (for the same reason as
 the increment). */
 
   syntax Exp ::= Int | Bool | String | Id
-               | "(" Exp ")"             [bracket]
+               | "(" Exp ")"             [strict] 
                | "++" Exp
                > Exp "[" Exps "]"        [strict]
                > Exp "(" Exps ")"        [strict]
@@ -151,7 +151,7 @@ the increment). */
                > left:
                  Exp "&&" Exp            [strict(1), left]
                | Exp "||" Exp            [strict(1), left]
-               > "spawn" Block
+               > "spawn" Block           [strict]
                > Exp "=" Exp             [strict(2), right]
 
 /*@ We also need comma-separated lists of identifiers and of expressions.
