@@ -9,29 +9,29 @@ import org.kframework.kore.KApply;
 import org.kframework.kore.Unapply;
 
 public class Goal {
-    private Rule goalClaim;
+    private K originalTerm;
+    private K targetTerm;
     private boolean proved;
     private DirectedGraph<PatternNode, ProofTransition> proofTree;
     int nodeIds;
 
-    public Goal(Rule goalClaim, boolean proved) {
-        this.goalClaim = goalClaim;
+
+    public Goal(K originalTerm, K targetTerm, boolean proved) {
+        this.originalTerm = originalTerm;
+        this.targetTerm = targetTerm;
         this.proved = proved;
         this.proofTree = new DefaultDirectedGraph<PatternNode, ProofTransition>(ProofTransition.class);
-        this.nodeIds = 0;
-        proofTree.addVertex(new PatternNode(getRuleLHS(goalClaim), nodeIds++));
+        int nodeIds = 1;
+        proofTree.addVertex(new PatternNode(originalTerm, nodeIds));
+        nodeIds++;
     }
 
-    public static K getRuleLHS(Rule rule) {
-        return ((KApply) rule.body()).items().get(0);
+    public K getOriginalTerm() {
+        return originalTerm;
     }
 
-    public static K getRuleRHS(Rule rule) {
-        return ((KApply) rule.body()).items().get(1);
-    }
-
-    public Rule getGoalClaim() {
-        return goalClaim;
+    public K getTargetTerm() {
+        return targetTerm;
     }
 
     public boolean isProved() {

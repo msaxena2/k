@@ -2,9 +2,9 @@
 package org.kframework.debugger;
 
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultEdge;
 import org.kframework.Kapi;
 import org.kframework.RewriterResult;
 import org.kframework.attributes.Source;
@@ -317,11 +317,14 @@ public class KoreKDebug implements KDebug {
 
     @Override
     public ProofState addPatternSourceFile(String filename) {
-        List<Rule> result = Kapi.parseAndConcretizePattern(filename, compiledDef);
-        result.forEach(x -> goalsList.add(new Goal(x, false)));
-        if (activeGoalId == GOALS_ABSENT_ID && !result.isEmpty()) {
-            activeGoalId = DEFAULT_GOAL_ID;
+        Pair<List<K>, List<K>> result = Kapi.parseAndConcretizePattern(filename, compiledDef);
+        List<K> originalTerms = result.getLeft();
+        List<K> targetTerms = result.getRight();
+
+        for(int i = 0; i < originalTerms.size(); ++i) {
+            goalsList.add(new Goal(originalTerms.get(i), targetTerms.get(i), false));
         }
+
         return new ProofState(goalsList, activeGoalId);
     }
 

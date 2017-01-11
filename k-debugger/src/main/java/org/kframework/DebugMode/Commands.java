@@ -324,8 +324,7 @@ public class Commands {
                     KRun.printK(termList.get(0).getPattern(), null, OutputModes.PRETTY, null, compiledDefinition, files, kem);
                 } else {
                     utils.print("Claim " + claimNum.get() + "\n");
-                    Rule goalRule = currentGoal.getGoalClaim();
-                    printReachabilityClaim(compiledDefinition, files, kem, utils, goalRule);
+                    printReachabilityClaim(compiledDefinition, files, kem, utils, currentGoal.getOriginalTerm(), currentGoal.getTargetTerm());
                     printTerms(currentGoal, disableOutput, compiledDefinition, files, kem);
 
                 }
@@ -337,8 +336,7 @@ public class Commands {
                     } else {
                         utils.print("Claim " + i);
                     }
-                    Rule goalRule = goals.get(i).getGoalClaim();
-                    printReachabilityClaim(compiledDefinition, files, kem, utils, goalRule);
+                    printReachabilityClaim(compiledDefinition, files, kem, utils, goals.get(i).getOriginalTerm(), goals.get(i).getTargetTerm());
                 }
             }
         }
@@ -352,11 +350,11 @@ public class Commands {
                 KRun.printK(x.getPattern(), null, OutputModes.PRETTY, null, compiledDefinition, files, kem);
             });
         }
-
-        private void printReachabilityClaim(CompiledDefinition compiledDefinition, FileUtil files, KExceptionManager kem, CommandUtils utils, Rule goalRule) {
-            KRun.printK(Goal.getRuleLHS(goalRule), null, OutputModes.PRETTY, null, compiledDefinition, files, kem);
+        //helper function to print out the reachability claim
+        private void printReachabilityClaim(CompiledDefinition compiledDefinition, FileUtil files, KExceptionManager kem, CommandUtils utils, K initialTerm, K targetTerm) {
+            KRun.printK(initialTerm, null, OutputModes.PRETTY, null, compiledDefinition, files, kem);
             utils.print("=>");
-            KRun.printK(Goal.getRuleRHS(goalRule), null, OutputModes.PRETTY, null, compiledDefinition, files, kem);
+            KRun.printK(targetTerm, null, OutputModes.PRETTY, null, compiledDefinition, files, kem);
         }
     }
 

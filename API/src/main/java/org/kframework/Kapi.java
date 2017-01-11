@@ -1,6 +1,7 @@
 // Copyright (c) 2016 K Team. All Rights Reserved.
 package org.kframework;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.kframework.attributes.Att;
 import org.kframework.attributes.Source;
 import org.kframework.backend.java.compile.KOREtoBackendKIL;
@@ -361,12 +362,11 @@ public class Kapi {
         return;
     }
 
-    public static List<Rule> parseAndConcretizePattern(String patternFile, CompiledDefinition compiledDef) {
+    public static Pair<List<K>, List<K>> parseAndConcretizePattern(String patternFile, CompiledDefinition compiledDef) {
 
         GlobalOptions globalOptions = new GlobalOptions();
         KompileOptions kompileOptions = new KompileOptions();
         KRunOptions krunOptions = new KRunOptions();
-        JavaExecutionOptions javaExecutionOptions = new JavaExecutionOptions();
 
         KExceptionManager kem = new KExceptionManager(globalOptions);
         Stopwatch sw = new Stopwatch(globalOptions);
@@ -425,8 +425,8 @@ public class Kapi {
                 .map(r -> converter.convert(Optional.<Module>empty(), r))
                 .map(r -> new org.kframework.backend.java.kil.Rule(
                         r.label(),
-                        r.leftHandSide().evaluate(rewritingContext), // TODO: drop?
-                        r.rightHandSide().evaluate(rewritingContext), // TODO: drop?
+                        r.leftHandSide().evaluate(rewritingContext),
+                        r.rightHandSide().evaluate(rewritingContext),
                         r.requires(),
                         r.ensures(),
                         r.freshConstants(),
@@ -437,9 +437,14 @@ public class Kapi {
                 .collect(Collectors.toList());
 
 
-        //TODO: Deal with Attributes?
-        return javaRules.stream().map(x -> Rule.apply(KORE.KApply(KORE.KLabel(KLabels.KREWRITE), x.leftHandSide(),
-                x.rightHandSide()), x.getRequires(), x.getEnsures(), KORE.emptyAtt())).collect(Collectors.toList());
+        List<K> lhsPatterns = javaRules.stream().map(x -> x.createLhsPattern(rewritingContext))
+                .map(x -> KORE.KApply(KORE.KLabel(KLabels.ML_AND), x.term(), x.constraint())).collect(Collectors.toList());
+
+        List<K> rhsPatterns = javaRules.stream().map(x -> x.createRhsPattern()).
+                map(x -> KORE.KApply(KORE.KLabel(KLabels.ML_AND), x.term(), x.constraint())).collect(Collectors.toList());
+
+
+        return Pair.of(lhsPatterns, rhsPatterns);
     }
 
     /**
